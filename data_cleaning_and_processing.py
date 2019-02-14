@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 ##### DATA CLEANING AND PROCESSING #####
 
 
-# In[ ]:
+# In[2]:
 
 
 ### import libraries
@@ -16,21 +16,21 @@ import numpy as np
 from datetime import datetime,date
 
 
-# In[ ]:
+# In[3]:
 
 
 start_time = datetime.now()
 print('Start time: ', start_time)
 
 
-# In[ ]:
+# In[4]:
 
 
 ##### LOAD DATA
 print('Loading data...')
 
 
-# In[ ]:
+# In[5]:
 
 
 ### get column headers and load data into a dataframe
@@ -38,20 +38,20 @@ column_headers = pd.read_csv('../data/mapping_files/column_headers.tsv', sep='\t
 df = pd.read_csv('../data/raw_data/3_day_sample_raw.tsv.gz', compression='gzip', sep='\t', encoding='iso-8859-1', quoting=3, low_memory=False, names=column_headers)
 
 
-# In[ ]:
+# In[6]:
 
 
 print('Time passed since start: ', datetime.now() - start_time)
 
 
-# In[ ]:
+# In[7]:
 
 
 ##### CLEAN DATA
 print('Cleaning data...')
 
 
-# In[ ]:
+# In[8]:
 
 
 ### drop unnecessary rows
@@ -65,7 +65,7 @@ df = df.drop(df[df.exclude_hit > 0].index)
 df = df.drop(df[(df.hit_source == 5) | (df.hit_source == 7) | (df.hit_source == 8) | (df.hit_source == 9)].index)
 
 
-# In[ ]:
+# In[9]:
 
 
 ### browser mapping
@@ -81,7 +81,7 @@ df['browser'] = df['browser'].map(browser_mapping_dict).fillna(df['browser'])
 df['browser'] = df['browser'].apply(lambda x: 'Not Specified' if x == 0 else x)
 
 
-# In[ ]:
+# In[10]:
 
 
 ### connection type mapping
@@ -96,7 +96,7 @@ connection_type_mapping_dict = dict(zip(connection_type_mapping.connection_type_
 df['connection_type'] = df['connection_type'].map(connection_type_mapping_dict).fillna(df['connection_type'])
 
 
-# In[ ]:
+# In[11]:
 
 
 ### country mapping
@@ -114,7 +114,7 @@ country_mapping_dict = dict(zip(country_mapping.country_id, country_mapping.coun
 df['country'] = df['country'].map(country_mapping_dict).fillna(df['country'])
 
 
-# In[ ]:
+# In[12]:
 
 
 ### custom evars mapping
@@ -134,7 +134,7 @@ for i in range(evars_mapped.shape[0]):
     df.rename(columns={evars_mapped.iloc[i,0] : str.lower(evars_mapped.iloc[i,1]).replace(' ','_')}, inplace=True)
 
 
-# In[ ]:
+# In[13]:
 
 
 ### custom marketing channel mapping
@@ -150,7 +150,7 @@ df['marketing_channel'] = df['marketing_channel'].apply(lambda x: 'Not Specified
 df.drop('va_closer_id', axis=1, inplace=True)
 
 
-# In[ ]:
+# In[14]:
 
 
 ### custom events and standard events mapping
@@ -178,7 +178,7 @@ for id, event in zip(events_mapping.iloc[:,0], events_mapping.iloc[:,1]):
 df = df.drop(df[df['internal_user_(e30)'] == 1].index)
 
 
-# In[ ]:
+# In[15]:
 
 
 ### custom props mapping
@@ -198,7 +198,7 @@ for i in range(props_mapped.shape[0]):
     df.rename(columns={props_mapped.iloc[i,0] : str.lower(props_mapped.iloc[i,1]).replace(' ','_')}, inplace=True)
 
 
-# In[ ]:
+# In[16]:
 
 
 ### operating system mapping
@@ -236,7 +236,7 @@ df['operating_system_generalized'] = df.apply(generalize_operating_system, axis=
 df.drop('operating_system', axis=1, inplace=True)
 
 
-# In[ ]:
+# In[17]:
 
 
 ### referrer type mapping
@@ -252,7 +252,7 @@ df['referrer_type'] = df['ref_type'].map(referrer_type_mapping_dict).fillna(df['
 df.drop('ref_type', axis=1, inplace=True)
 
 
-# In[ ]:
+# In[18]:
 
 
 ### search engine mapping
@@ -295,7 +295,7 @@ df['search_engine_generalized'] = df.apply(generalize_search_engine, axis=1)
 df.drop('search_engine', axis=1, inplace=True)
 
 
-# In[ ]:
+# In[19]:
 
 
 ### split and process product_items, product_item_price and product_categories columns
@@ -316,20 +316,20 @@ df['product_categories_level_3'] = df['product_categories'].apply(lambda x: 'Not
                                                                   else 'Not Specified'))
 
 
-# In[ ]:
+# In[20]:
 
 
 print('Time passed since start: ', datetime.now() - start_time)
 
 
-# In[ ]:
+# In[21]:
 
 
 ##### AGGREGATE NUMERICAL COLUMNS TO SESSION LEVEL
 print('Aggregating numerical columns...')
 
 
-# In[ ]:
+# In[22]:
 
 
 ### aggregate numerical columns
@@ -375,20 +375,56 @@ numerical_cols_aggregated = numerical_cols_aggregated.sort_values(['hit_time_gmt
 numerical_cols_aggregated = numerical_cols_aggregated.reset_index(drop=True)
 
 
-# In[ ]:
+# In[82]:
+
+
+### ensure correct dtypes
+object_cols = ['visitor_id']
+
+for i in object_cols:
+    numerical_cols_aggregated[i] = numerical_cols_aggregated[i].astype(str)
+
+int_cols = ['visit_num',
+ 'visit_page_num',
+ 'purchase',
+ 'product_view',
+ 'checkout',
+ 'cart_addition',
+ 'cart_removal',
+ 'cart_view',
+ 'campaign_view',
+ 'page_view',
+ 'last_purchase_num',
+ 'num_product_items_seen']
+
+for i in int_cols:
+    numerical_cols_aggregated[i] = numerical_cols_aggregated[i].astype(np.int64)
+    
+float_cols = ['cart_value', 'sum_price_product_items_seen']
+
+for i in float_cols:
+    numerical_cols_aggregated[i] = numerical_cols_aggregated[i].astype(np.float64)
+
+datetime_cols = ['hit_time_gmt', 'last_hit_time_gmt_visit']
+
+for i in datetime_cols:
+    numerical_cols_aggregated[i] = numerical_cols_aggregated[i].astype(np.datetime64)
+
+
+# In[23]:
 
 
 print('Time passed since start: ', datetime.now() - start_time)
 
 
-# In[ ]:
+# In[24]:
 
 
 ##### PROCESS CATEGORICAL COLUMNS
 print('Processing categorical columns...')
 
 
-# In[ ]:
+# In[25]:
 
 
 # select categorical columns
@@ -422,47 +458,100 @@ categorical_cols = categorical_cols.sort_values(['hit_time_gmt', 'visitor_id'], 
 categorical_cols = categorical_cols.reset_index(drop=True)
 
 
-# In[ ]:
+# In[84]:
+
+
+### ensure correct dtypes
+object_cols = ['connection_type',
+ 'country',
+ 'geo_city',
+ 'geo_region',
+ 'geo_zip',
+ 'post_channel',
+ 'user_gender_(v61)',
+ 'user_age_(v62)',
+ 'net_promoter_score_raw_(v10)_-_user',
+ 'visitor_id',
+ 'marketing_channel',
+ 'operating_system_generalized',
+ 'referrer_type',
+ 'search_engine_generalized',
+ 'product_categories_level_1',
+ 'product_categories_level_2',
+ 'product_categories_level_3']
+
+for i in object_cols:
+    categorical_cols[i] = categorical_cols[i].astype(str)
+
+int_cols = ['daily_visitor',
+ 'geo_dma',
+ 'hourly_visitor',
+ 'monthly_visitor',
+ 'new_visit',
+ 'post_cookies',
+ 'post_persistent_cookie',
+ 'quarterly_visitor',
+ 'weekly_visitor',
+ 'yearly_visitor',
+ 'repeat_orders_(e9)',
+ 'registration_(any_form)_(e20)',
+ 'hit_of_logged_in_user_(e23)',
+ 'newsletter_signup_(any_form)_(e26)',
+ 'newsletter_subscriber_(e27)',
+ 'visit_during_tv_spot_(e71)',
+ 'registration_fail_(e75)',
+ 'registered_user',
+ 'login_status']
+
+for i in int_cols:
+    categorical_cols[i] = categorical_cols[i].astype(np.int64)
+
+datetime_cols = ['hit_time_gmt']
+
+for i in datetime_cols:
+    categorical_cols[i] = categorical_cols[i].astype(np.datetime64)
+
+
+# In[26]:
 
 
 print('Time passed since start: ', datetime.now() - start_time)
 
 
-# In[ ]:
+# In[27]:
 
 
 ##### MERGE NUMERICAL AND CATEGORICAL COLUMNS ON SESSION LEVEL
 print('Merging numerical and categorical columns...')
 
 
-# In[ ]:
+# In[28]:
 
 
 session_level_data_merged = pd.merge_asof(numerical_cols_aggregated, categorical_cols, on='hit_time_gmt', by='visitor_id')
 session_level_data_merged = session_level_data_merged.reset_index(drop=True)
 
 
-# In[ ]:
+# In[29]:
 
 
 print('Time passed since start: ', datetime.now() - start_time)
 
 
-# In[ ]:
+# In[30]:
 
 
 ##### WRITE DATA TO FILE
 print('Writing data to file...')
 
 
-# In[ ]:
+# In[31]:
 
 
-# write numerical and categorical columns merged to session-level dataframe to tsv file
-session_level_data_merged.to_csv('../data/processed_data/session_level_data_merged.tsv', sep='\t', encoding='iso-8859-1')
+session_level_data_merged.to_csv('../data/processed_data/session_level_data_merged.tsv.gz', compression='gzip', sep='\t', encoding='iso-8859-1', index=False)
 
 
-# In[ ]:
+# In[32]:
 
 
 print('Total execution time: ', datetime.now() - start_time)
