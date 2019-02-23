@@ -36,12 +36,12 @@ print('Start time: ', start_time)
 
 input_file = '3_day_sample_cleaned_and_mapped.tsv.gz'
 output_file = '3_day_sample_aggregated.tsv.gz'
-#input_data = '6_week_sample_cleaned_and_mapped.tsv.gz'
-#output_data = '6_week_sample_aggregated.tsv.gz'
-#input_data = '12_week_sample_cleaned_and_mapped.tsv.gz'
-#output_data = '12_week_sample_aggregated.tsv.gz'
-#input_data = '25_week_sample_cleaned_and_mapped.tsv.gz'
-#output_data = '25_week_sample_aggregated.tsv.gz'
+#input_file = '6_week_sample_cleaned_and_mapped.tsv.gz'
+#output_file = '6_week_sample_aggregated.tsv.gz'
+#input_file = '12_week_sample_cleaned_and_mapped.tsv.gz'
+#output_file = '12_week_sample_aggregated.tsv.gz'
+#input_file = '25_week_sample_cleaned_and_mapped.tsv.gz'
+#output_file = '25_week_sample_aggregated.tsv.gz'
 
 print('Input file selected: ', input_file)
 print('Output file selected', output_file)
@@ -57,7 +57,7 @@ print('Loading data...')
 # In[7]:
 
 
-df = pd.read_csv('../data/processed_data/'+input_file, compression='gzip', sep='\t', encoding='iso-8859-1', quoting=3, low_memory=False, parse_dates=['hit_time_gmt'])
+df = pd.read_csv('../data/processed_data/'+input_file, compression='gzip', sep='\t', encoding='iso-8859-1', quoting=3, low_memory=False, parse_dates=['hit_time_gmt', 'date_time'])
 
 print('Loading data complete.')
 
@@ -84,6 +84,7 @@ numerical_cols_names = ['visitor_id',
                         'visit_num', 
                         'visit_page_num', 
                         'hit_time_gmt',
+                        'date_time',
                         'purchase_boolean', 
                         'product_view_boolean', 
                         'checkout_boolean', 
@@ -106,6 +107,7 @@ numerical_cols = df.loc[:, df.columns.isin(numerical_cols_names)].copy()
 # group numerical columns by visitor_id and visit_num and aggregate
 numerical_cols_aggregated = numerical_cols.groupby(by = ['visitor_id', 'visit_num'], as_index=False).agg({'visit_page_num' : 'max',
                                                                                                           'hit_time_gmt': ['min', 'max'],
+                                                                                                          'date_time' : ['min', 'max'],
                                                                                                           'purchase_boolean' : 'sum',
                                                                                                           'product_view_boolean' : 'sum',
                                                                                                           'checkout_boolean' : 'sum',
@@ -130,7 +132,9 @@ numerical_cols_aggregated = numerical_cols_aggregated.rename(columns={'visitor_i
                                                                       'visit_page_num_max' : 'visit_page_num',
                                                                       'hit_time_gmt_min' : 'hit_time_gmt',
                                                                       'hit_time_gmt_max' : 'last_hit_time_gmt_visit',
-                                                                      'purchase_boolean_sum' : 'purchases',
+                                                                      'date_time_min' : 'date_time',
+                                                                      'date_time_max' : 'last_date_time_visit',
+                                                                      'purchase_boolean_sum' : 'purchase',
                                                                       'product_view_boolean_sum' : 'product_views',
                                                                       'checkout_boolean_sum' : 'checkouts',
                                                                       'cart_addition_boolean_sum' : 'cart_additions',

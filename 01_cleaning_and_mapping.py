@@ -36,12 +36,12 @@ print('Start time: ', start_time)
 
 input_file = '3_day_sample_raw.tsv.gz'
 output_file = '3_day_sample_cleaned_and_mapped.tsv.gz'
-#input_data = '6_week_sample_raw.tsv.gz'
-#output_data = '6_week_sample_cleaned_and_mapped.tsv.gz'
-#input_data = '12_week_sample_raw.tsv.gz'
-#output_data = '12_week_sample_cleaned_and_mapped.tsv.gz'
-#input_data = '25_week_sample_raw.tsv.gz'
-#output_data = '25_week_sample_cleaned_and_mapped.tsv.gz'
+#input_file = '6_week_sample_raw.tsv.gz'
+#output_file = '6_week_sample_cleaned_and_mapped.tsv.gz'
+#input_file = '12_week_sample_raw.tsv.gz'
+#output_file = '12_week_sample_cleaned_and_mapped.tsv.gz'
+#input_file = '25_week_sample_raw.tsv.gz'
+#output_file = '25_week_sample_cleaned_and_mapped.tsv.gz'
 
 print('Input file selected: ', input_file)
 print('Output file selected', output_file)
@@ -375,17 +375,19 @@ print('Filling missing and faulty values complete.')
 
 ### casting data types
 df['hit_time_gmt'] = pd.to_datetime(df['hit_time_gmt'], unit='s')
+df['date_time'] = df['date_time'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
 df['visit_page_num'] = df['visit_page_num'].astype(np.int64)
 
 print('Casting data types complete.')
 
 
-# In[24]:
+# In[23]:
 
 
 ### drop some columns
 columns_to_keep = ['visitor_id', 
                    'hit_time_gmt',
+                   'date_time',
                    # numerical columns
                    'visit_num', 
                    'visit_page_num', 
@@ -450,28 +452,29 @@ columns_to_keep = ['visitor_id',
 df = df[columns_to_keep]
 
 ### note on columns
-# open_cart is static/not filled
-# other static columns: registration_(any_form)_(e20), newsletter_signup_(any_form)_(e26), newsletter_subscriber_(e27), login_success_(e72), logout_success_(e73), login_fail_(e74), registration_fail_(e75)
+# cart_open not filled
+# static columns: registration_(any_form)_(e20), newsletter_signup_(any_form)_(e26), newsletter_subscriber_(e27), login_success_(e72), logout_success_(e73), login_fail_(e74), registration_fail_(e75)
 # columns with lots of missing values: net_promoter_score_raw_(v10)_-_user, user_gender_(v61), user_age_(v62)
-# unclear use: event level columns, post_channel
+# unclear use: event level columns, post_channel (contains 'Order Confirmation'), last_purchase_num
+# hit_of_logged_in_user_(e23) and login_status potentially duplicates
 
 print('Dropping columns complete.')
 
 
-# In[25]:
+# In[24]:
 
 
 ##### WRITE DATAFRAME TO FILE
 print('Writing dataframe to file...')
 
 
-# In[27]:
+# In[25]:
 
 
 df.to_csv('../data/processed_data/'+output_file, compression='gzip', sep='\t', encoding='iso-8859-1', index=False)
 
 
-# In[28]:
+# In[26]:
 
 
 print('Cleaning and mapping complete.')

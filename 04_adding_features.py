@@ -36,12 +36,12 @@ print('Start time: ', start_time)
 
 input_file = '3_day_sample_preprocessed.tsv.gz'
 output_file = '3_day_sample_preprocessed_with_additional_features.tsv.gz'
-#input_data = '6_week_sample_preprocessed.tsv.gz'
-#output_data = '6_week_sample_preprocessed_with_additional_features.tsv.gz'
-#input_data = '12_week_sample_preprocessed.tsv.gz'
-#output_data = '12_week_sample_preprocessed_with_additional_features.tsv.gz'
-#input_data = '25_week_sample_preprocessed.tsv.gz'
-#output_data = '25_week_sample_preprocessed_with_additional_features.tsv.gz'
+#input_file = '6_week_sample_preprocessed.tsv.gz'
+#output_file = '6_week_sample_preprocessed_with_additional_features.tsv.gz'
+#input_file = '12_week_sample_preprocessed.tsv.gz'
+#output_file = '12_week_sample_preprocessed_with_additional_features.tsv.gz'
+#input_file = '25_week_sample_preprocessed.tsv.gz'
+#output_file = '25_week_sample_preprocessed_with_additional_features.tsv.gz'
 
 print('Input file selected: ', input_file)
 print('Output file selected', output_file)
@@ -57,7 +57,7 @@ print('Loading data...')
 # In[7]:
 
 
-df = pd.read_csv('../data/processed_data/'+input_file, compression='gzip', sep='\t', low_memory=False, encoding='iso-8859-1', parse_dates=['hit_time_gmt', 'last_hit_time_gmt_visit'])
+df = pd.read_csv('../data/processed_data/'+input_file, compression='gzip', sep='\t', low_memory=False, encoding='iso-8859-1', parse_dates=['hit_time_gmt', 'last_hit_time_gmt_visit', 'date_time'])
 
 print('Loading data complete.')
 
@@ -76,10 +76,10 @@ print('Adding additional features...')
 df = df.sort_values(['visitor_id', 'visit_num', 'hit_time_gmt', 'last_hit_time_gmt_visit'], ascending=[True, True, True, True])
 
 # day of week
-df['day_of_week'] = df['hit_time_gmt'].dt.dayofweek
+df['day_of_week'] = df['date_time'].apply(lambda x: x.weekday())
 
 # hour of day
-df['hour_of_day'] = df['hit_time_gmt'].dt.hour
+df['hour_of_day'] = df['date_time'].apply(lambda x: x.hour)
 
 # encode time features
 time_features = ['day_of_week',

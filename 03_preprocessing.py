@@ -36,12 +36,12 @@ print('Start time: ', start_time)
 
 input_file = '3_day_sample_aggregated.tsv.gz'
 output_file = '3_day_sample_preprocessed.tsv.gz'
-#input_data = '6_week_sample_aggregated.tsv.gz'
-#output_data = '6_week_sample_preprocessed.tsv.gz'
-#input_data = '12_week_sample_aggregated.tsv.gz'
-#output_data = '12_week_sample_preprocessed.tsv.gz'
-#input_data = '25_week_sample_aggregated.tsv.gz'
-#output_data = '25_week_sample_preprocessed.tsv.gz'
+#input_file = '6_week_sample_aggregated.tsv.gz'
+#output_file = '6_week_sample_preprocessed.tsv.gz'
+#input_file = '12_week_sample_aggregated.tsv.gz'
+#output_file = '12_week_sample_preprocessed.tsv.gz'
+#input_file = '25_week_sample_aggregated.tsv.gz'
+#output_file = '25_week_sample_preprocessed.tsv.gz'
 
 print('Input file selected: ', input_file)
 print('Output file selected', output_file)
@@ -57,7 +57,7 @@ print('Loading data...')
 # In[7]:
 
 
-df = pd.read_csv('../data/processed_data/'+input_file, compression='gzip', sep='\t', low_memory=False, encoding='iso-8859-1', parse_dates=['hit_time_gmt', 'last_hit_time_gmt_visit'])
+df = pd.read_csv('../data/processed_data/'+input_file, compression='gzip', sep='\t', low_memory=False, encoding='iso-8859-1', parse_dates=['hit_time_gmt', 'last_hit_time_gmt_visit', 'date_time'])
 
 print('Loading data complete.')
 
@@ -103,28 +103,17 @@ df = pd.concat([df, dummies], axis=1)
 # In[12]:
 
 
-### note on columns
-# cart_open not filled
-# static columns: registration_(any_form)_(e20), newsletter_signup_(any_form)_(e26), newsletter_subscriber_(e27), login_success_(e72), logout_success_(e73), login_fail_(e74), registration_fail_(e75)
-# columns with lots of missing values: net_promoter_score_raw_(v10)_-_user, user_gender_(v61), user_age_(v62)
-# unclear use: event level columns, post_channel (contains 'Order Confirmation')
-# hit_of_logged_in_user_(e23) and login_status potentially duplicates
+### WRITE DATAFRAME TO FILE
+print('Writing dataframe to file...')
 
 
 # In[13]:
 
 
-### WRITE DATAFRAME TO FILE
-print('Writing dataframe to file...')
-
-
-# In[14]:
-
-
 df.to_csv('../data/processed_data/'+output_file, compression='gzip', sep='\t', encoding='iso-8859-1', index=False)
 
 
-# In[15]:
+# In[14]:
 
 
 print('Preprocessing complete.')
