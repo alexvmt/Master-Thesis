@@ -1,0 +1,1 @@
+{'resampling duration': datetime.timedelta(seconds=1746, microseconds=548441), 'original training set size': 150771, 'resampled training set size': 299382, 'original conversion rate': 0.0071999999999999998, 'new conversion rate': 0.5}

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 # coding: utf-8
 
 # In[1]:
@@ -44,7 +44,7 @@ output_file = '3_day_sample_cleaned_and_mapped.tsv.gz'
 #output_file = '25_week_sample_cleaned_and_mapped.tsv.gz'
 
 print('Input file selected: ', input_file)
-print('Output file selected', output_file)
+print('Output file selected: ', output_file)
 
 
 # In[6]:
@@ -98,7 +98,7 @@ browser_mapping_dict = dict(zip(browser_mapping.browser_id, browser_mapping.brow
 
 # map browsers
 df['browser'] = df['browser'].map(browser_mapping_dict).fillna(df['browser'])
-df['browser'] = df['browser'].apply(lambda x: 'Not Specified' if x == 0 else x)
+df['browser'] = df['browser'].apply(lambda x: 'Unknown' if x == 0 else x)
 
 print('Browser mapping complete.')
 
@@ -173,8 +173,8 @@ marketing_channel_mapping = pd.read_csv('../data/mapping_files/custom_marketing_
 marketing_channel_mapping_dict = dict(zip(marketing_channel_mapping.channel_id, marketing_channel_mapping.name))
 
 # map marketing channels
-df['marketing_channel'] = df['va_closer_id'].map(marketing_channel_mapping_dict).fillna(df['va_closer_id'])
-df['marketing_channel'] = df['marketing_channel'].apply(lambda x: 'Not Specified' if x == 0 else x)
+df['va_closer_id'] = df['va_closer_id'].map(marketing_channel_mapping_dict).fillna(df['va_closer_id'])
+df['va_closer_id'] = df['va_closer_id'].apply(lambda x: 'Unknown' if x == 0 else x)
 
 print('Custom marketing channel mapping complete.')
 
@@ -184,7 +184,7 @@ print('Custom marketing channel mapping complete.')
 
 ### standard and custom events mapping
 # fill missing values in post_event_list
-df['post_event_list'] = df['post_event_list'].fillna('Not Specified')
+df['post_event_list'] = df['post_event_list'].fillna('Unknown')
 
 # load file for standard event mapping
 standard_events = pd.read_csv('../data/mapping_files/event.tsv', sep='\t', header=None)
@@ -243,25 +243,24 @@ operating_system_mapping.columns = ['operating_system_id', 'operating_system_nam
 operating_system_mapping_dict = dict(zip(operating_system_mapping.operating_system_id, operating_system_mapping.operating_system_name))
 
 # map operating systems
-df['operating_system'] = df['os'].map(operating_system_mapping_dict).fillna(df['os'])
-df.drop('os', axis=1, inplace=True)
+df['os'] = df['os'].map(operating_system_mapping_dict).fillna(df['os'])
 
 # generalize operating system
 def generalize_operating_system(row):
-    if 'Windows' in row['operating_system']:
+    if 'Windows' in row['os']:
         return 'Windows'
-    elif 'Linux' in row['operating_system']:
+    elif 'Linux' in row['os']:
         return 'Linux'
-    elif 'Android' in row['operating_system']:
+    elif 'Android' in row['os']:
         return 'Android'
-    elif 'Mobile iOS' in row['operating_system']:
+    elif 'Mobile iOS' in row['os']:
         return 'Apple'
-    elif 'Macintosh' in row['operating_system']:
+    elif 'Macintosh' in row['os']:
         return 'Apple'
-    elif 'OS X' in row['operating_system']:
+    elif 'OS X' in row['os']:
         return 'Apple'
-    elif 'Not Specified' in row['operating_system']:
-        return 'Not Specified'
+    elif 'Not Specified' in row['os']:
+        return 'Unknown'
     else:
         return 'Other'
     
@@ -282,12 +281,12 @@ referrer_type_mapping.columns = ['referrer_type_id', 'referrer_type_name', 'refe
 referrer_type_mapping_dict = dict(zip(referrer_type_mapping.referrer_type_id, referrer_type_mapping.referrer_type))
 
 # map referrer types
-df['referrer_type'] = df['ref_type'].map(referrer_type_mapping_dict).fillna(df['ref_type'])
+df['ref_type'] = df['ref_type'].map(referrer_type_mapping_dict).fillna(df['ref_type'])
 
 print('Referrer type mapping complete.')
 
 
-# In[19]:
+# In[ ]:
 
 
 ### search engine mapping
@@ -299,30 +298,31 @@ search_engine_mapping.columns = ['search_engine_id', 'search_engine_name']
 search_engine_mapping_dict = dict(zip(search_engine_mapping.search_engine_id, search_engine_mapping.search_engine_name))
 
 # map search engines
-df['search_engine'] = df['post_search_engine'].map(search_engine_mapping_dict).fillna(df['post_search_engine'])
-df.drop('post_search_engine', axis=1, inplace=True)
+df['post_search_engine'] = df['post_search_engine'].map(search_engine_mapping_dict).fillna(df['post_search_engine'])
 
 # convert search engine column to string type
-df['search_engine'] = df['search_engine'].astype(str)
+df['post_search_engine'] = df['post_search_engine'].astype(str)
 
 # generalize search engine
 def generalize_search_engine(row):
-    if 'Google' in row['search_engine']:
+    if 'Google' in row['post_search_engine']:
         return 'Google'
-    elif 'Yahoo' in row['search_engine']:
+    elif 'googleadservices.com' in row['post_search_engine']:
+        return 'Google'
+    elif 'Yahoo' in row['post_search_engine']:
         return 'Yahoo'
-    elif 'Bing' in row['search_engine']:
+    elif 'Bing' in row['post_search_engine']:
         return 'Bing'
-    elif 'Baidu' in row['search_engine']:
+    elif 'Baidu' in row['post_search_engine']:
         return 'Baidu'
-    elif 'DuckDuckGo' in row['search_engine']:
+    elif 'DuckDuckGo' in row['post_search_engine']:
         return 'DuckDuckGo'
-    elif 'Yandex' in row['search_engine']:
+    elif 'Yandex' in row['post_search_engine']:
         return 'Yandex'
-    elif 'Search.ch' in row['search_engine']:
+    elif 'Search.ch' in row['post_search_engine']:
         return 'Search.ch'
-    elif '0' in row['search_engine']:
-        return ' Not Specified'
+    elif '0' in row['post_search_engine']:
+        return 'Unknown'
     else:
         return 'Other'
     
@@ -331,7 +331,28 @@ df['search_engine_generalized'] = df.apply(generalize_search_engine, axis=1)
 print('Search engine mapping complete.')
 
 
-# In[20]:
+# In[ ]:
+
+
+### user_agent mapping
+# fill missing values
+df['user_agent'] = df['user_agent'].fillna('Unknown')
+
+user_agent_mapping_file = 'user_agent_mapping.tsv.gz'
+
+# load file for user agent mapping
+user_agent_mapping = pd.read_csv('../data/mapping_files/'+user_agent_mapping_file, compression='gzip', sep='\t', encoding='iso-8859-1', quoting=3, low_memory=False)
+
+# merge user agent mapping and df
+df = pd.merge(df, user_agent_mapping, how='left', on='user_agent')
+
+# drop rows where device_is_bot_user_agent == 1
+df = df.drop(df[df.device_is_bot_user_agent == 1].index)
+
+print('User agent mapping complete.')
+
+
+# In[ ]:
 
 
 ### split and process product_items, product_item_price and product_categories columns
@@ -340,37 +361,33 @@ df['num_product_items_seen'] = df['product_items'].apply(lambda x: 0 if pd.isnul
 df['sum_price_product_items_seen'] = df['product_item_price'].apply(lambda x: 0 if pd.isnull(x)
                                                               else sum([float(i) for i in x.split(';')]))
 
-df['product_categories_level_1'] = df['product_categories'].apply(lambda x: 'Not Specified' if pd.isnull(x)
+df['product_categories_level_1'] = df['product_categories'].apply(lambda x: 'Unknown' if pd.isnull(x)
                                                                   else [i.split(' / ') for i in x.split(';')][0][0])
 
-df['product_categories_level_2'] = df['product_categories'].apply(lambda x: 'Not Specified' if pd.isnull(x) else 
+df['product_categories_level_2'] = df['product_categories'].apply(lambda x: 'Unknown' if pd.isnull(x) else 
                                                                   ([i.split(' / ') for i in x.split(';')][0][1] if len([i.split(' / ') for i in x.split(';')][0]) > 1 
-                                                                  else 'Not Specified'))
+                                                                  else 'Unknown'))
 
-df['product_categories_level_3'] = df['product_categories'].apply(lambda x: 'Not Specified' if pd.isnull(x) else 
+df['product_categories_level_3'] = df['product_categories'].apply(lambda x: 'Unknown' if pd.isnull(x) else 
                                                                   ([i.split(' / ') for i in x.split(';')][0][2] if len([i.split(' / ') for i in x.split(';')][0]) > 2 
-                                                                  else 'Not Specified'))
+                                                                  else 'Unknown'))
 
 print('Product item, prices and categories splitting complete.')
 
 
-# In[21]:
+# In[ ]:
 
 
 ### filling missing and faulty values
 df['cart_value_(v50)'].fillna(0, inplace=True)
-df['geo_city'] = df['geo_city'].apply(lambda x: 'Not Specified' if x == '?' else x)
-df['geo_region'] = df['geo_region'].apply(lambda x: 'Not Specified' if x == '?' else x)
-df['post_channel'] = df['post_channel'].fillna('Not Specified')
 df['post_cookies'] = df['post_cookies'].apply(lambda x: 1 if x == 'Y' else 0)
 df['post_persistent_cookie'] = df['post_persistent_cookie'].apply(lambda x: 1 if x == 'Y' else 0)
-df['registered_user'] = df['registered_user_(user)_(v34)'].apply(lambda x: 1 if x == 'y' else 0)
-df['login_status'] = df['login_status_(hit)_(v37)'].apply(lambda x: 1 if x == 'y' else 0)
+df['registered_user_(user)_(v34)'] = df['registered_user_(user)_(v34)'].apply(lambda x: 1 if x == 'y' else 0)
 
 print('Filling missing and faulty values complete.')
 
 
-# In[22]:
+# In[ ]:
 
 
 ### casting data types
@@ -381,10 +398,29 @@ df['visit_page_num'] = df['visit_page_num'].astype(np.int64)
 print('Casting data types complete.')
 
 
-# In[23]:
+# In[ ]:
 
 
-### drop some columns
+### rename and drop some columns
+df.rename(columns={'va_closer_id' : 'marketing_channel'}, inplace=True)
+df.rename(columns={'os' : 'operating_system'}, inplace=True)
+df.rename(columns={'ref_type' : 'referrer_type'}, inplace=True)
+df.rename(columns={'post_search_engine' : 'search_engine'}, inplace=True)
+df.rename(columns={'cart_value_(v50)' : 'cart_value'}, inplace=True)
+df.rename(columns={'server_call_counter_(e1)' : 'hit_counter'}, inplace=True)
+df.rename(columns={'int._stand._search_result_clicked_(e16)' : 'standard_search_results_clicked'}, inplace=True)
+df.rename(columns={'active_stand._search_started_(e17)' : 'standard_search_started'}, inplace=True)
+df.rename(columns={'sugg._search_result_clicked_(e18)' : 'suggested_search_results_clicked'}, inplace=True)
+df.rename(columns={'post_cookies' : 'cookies'}, inplace=True)
+df.rename(columns={'post_persistent_cookie' : 'persistent_cookie'}, inplace=True)
+df.rename(columns={'repeat_orders_(e9)' : 'repeat_orders'}, inplace=True)
+df.rename(columns={'net_promoter_score_raw_(v10)_-_user' : 'net_promoter_score'}, inplace=True)
+df.rename(columns={'hit_of_logged_in_user_(e23)' : 'hit_of_logged_in_user'}, inplace=True)
+df.rename(columns={'registered_user_(user)_(v34)' : 'registered_user'}, inplace=True)
+df.rename(columns={'user_gender_(v61)' : 'user_gender'}, inplace=True)
+df.rename(columns={'user_age_(v62)' : 'user_age'}, inplace=True)
+df.rename(columns={'visit_during_tv_spot_(e71)' : 'visit_during_tv_spot'}, inplace=True)
+
 columns_to_keep = ['visitor_id', 
                    'hit_time_gmt',
                    'date_time',
@@ -398,46 +434,27 @@ columns_to_keep = ['visitor_id',
                    'cart_removal_boolean', 
                    'cart_view_boolean', 
                    'campaign_view_boolean', 
-                   'cart_value_(v50)', 
+                   'cart_value', 
                    'page_view_boolean', 
                    'last_purchase_num', 
                    'num_product_items_seen', 
                    'sum_price_product_items_seen', 
-                   'server_call_counter_(e1)', 
-                   'int._stand._search_result_clicked_(e16)', 
-                   'active_stand._search_started_(e17)', 
-                   'sugg._search_result_clicked_(e18)',
+                   'hit_counter', 
+                   'standard_search_results_clicked', 
+                   'standard_search_started', 
+                   'suggested_search_results_clicked',
                    # categorical columns
                    'country', 
-                   'geo_region', 
-                   'geo_city', 
-                   'geo_zip', 
-                   'geo_dma',
-                   'post_channel', 
-                   'post_cookies', 
-                   'post_persistent_cookie', 
+                   'cookies', 
+                   'persistent_cookie', 
                    'search_page_num',
                    'connection_type', 
                    'browser', 
-                   'operating_system_generalized', 
-                   'search_engine_generalized', 
+                   'operating_system', 
+                   'search_engine', 
+                   'search_engine_generalized',
                    'marketing_channel', 
                    'referrer_type', 
-                   'repeat_orders_(e9)', 
-                   'net_promoter_score_raw_(v10)_-_user', 
-                   'registration_(any_form)_(e20)', 
-                   'hit_of_logged_in_user_(e23)', 
-                   'newsletter_signup_(any_form)_(e26)', 
-                   'newsletter_subscriber_(e27)', 
-                   'registered_user', 
-                   'login_status', 
-                   'user_gender_(v61)', 
-                   'user_age_(v62)', 
-                   'visit_during_tv_spot_(e71)', 
-                   'login_success_(e72)', 
-                   'logout_success_(e73)', 
-                   'login_fail_(e74)', 
-                   'registration_fail_(e75)',
                    'new_visit', 
                    'hourly_visitor', 
                    'daily_visitor', 
@@ -447,36 +464,52 @@ columns_to_keep = ['visitor_id',
                    'yearly_visitor', 
                    'product_categories_level_1', 
                    'product_categories_level_2', 
-                   'product_categories_level_3']
+                   'product_categories_level_3', 
+                   'device_type_user_agent', 
+                   'device_brand_name_user_agent', 
+                   'device_operating_system_user_agent', 
+                   'device_browser_user_agent',
+                   'repeat_orders', 
+                   'net_promoter_score', 
+                   'hit_of_logged_in_user',
+                   'registered_user',
+                   'user_gender', 
+                   'user_age', 
+                   'visit_during_tv_spot']
 
 df = df[columns_to_keep]
-
-### note on columns
-# cart_open not filled
-# static columns: registration_(any_form)_(e20), newsletter_signup_(any_form)_(e26), newsletter_subscriber_(e27), login_success_(e72), logout_success_(e73), login_fail_(e74), registration_fail_(e75)
-# columns with lots of missing values: net_promoter_score_raw_(v10)_-_user, user_gender_(v61), user_age_(v62)
-# unclear use: event level columns, post_channel (contains 'Order Confirmation'), last_purchase_num
-# hit_of_logged_in_user_(e23) and login_status potentially duplicates
 
 print('Dropping columns complete.')
 
 
-# In[24]:
+# In[ ]:
 
 
 ##### WRITE DATAFRAME TO FILE
 print('Writing dataframe to file...')
 
 
-# In[25]:
+# In[ ]:
 
 
 df.to_csv('../data/processed_data/'+output_file, compression='gzip', sep='\t', encoding='iso-8859-1', index=False)
 
 
-# In[26]:
+# In[ ]:
 
 
 print('Cleaning and mapping complete.')
-print('Run time: ', datetime.now() - start_time)
+run_time = datetime.now() - start_time
+print('Run time: ', run_time)
+
+run_time_dict_file = '3_day_sample_cleaning_and_mapping_run_time.txt'
+#run_time_dict_file = '6_week_sample_cleaning_and_mapping_run_time.txt'
+#run_time_dict_file = '12_week_sample_cleaning_and_mapping_run_time.txt'
+#run_time_dict_file = '25_week_sample_cleaning_and_mapping_run_time.txt'
+
+run_time_dict = {'cleaning and mapping run time' : run_time}
+
+f = open('../data/descriptives/'+run_time_dict_file, 'w')
+f.write(str(run_time_dict))
+f.close()
 

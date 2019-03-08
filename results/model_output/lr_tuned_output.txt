@@ -1,0 +1,4 @@
+{'model': 'LR tuned', 'default params': LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,
+          intercept_scaling=1, max_iter=100, multi_class='warn',
+          n_jobs=None, penalty='l2', random_state=None, solver='warn',
+          tol=0.0001, verbose=0, warm_start=False), 'optimal params': {'C': 720.00009999999997}, 'tuning duration': datetime.timedelta(seconds=405, microseconds=252638), 'evaluation duration': datetime.timedelta(microseconds=93748), 'accuracy': 0.99011670198298496, 'auc': 0.53410067178568732, 'true negatives': 62574, 'false negatives': 519, 'true positives': 39, 'false positives': 106, 'precision': 0.26896551724137929, 'recall': 0.069892473118279563, 'f1 score': 0.11095305832147936}
