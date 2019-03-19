@@ -10,7 +10,6 @@ from datetime import datetime,date
 start_time = datetime.now()
 print('Start time: ', start_time)
 
-import os
 import numpy as np
 import pandas as pd
 
@@ -24,21 +23,20 @@ input_files = ['clickstream_0516_raw.tsv.gz',
                'clickstream_0916_raw.tsv.gz',
                'clickstream_1016_raw.tsv.gz']
 
-# output file
-output_file = 'clickstream_0516-1016_cleaned_and_mapped.tsv.gz'
-
-# remove output file if it already exists before proceeding
-if os.path.exists('../data/processed_data/'+output_file):
-    os.remove('../data/processed_data/'+output_file)
-else:
-    pass
+# output files
+output_files = ['clickstream_0516_cleaned_and_mapped.pkl.gz',
+                'clickstream_0616_cleaned_and_mapped.pkl.gz',
+                'clickstream_0716_cleaned_and_mapped.pkl.gz',
+                'clickstream_0816_cleaned_and_mapped.pkl.gz',
+                'clickstream_0916_cleaned_and_mapped.pkl.gz',
+                'clickstream_1016_cleaned_and_mapped.pkl.gz']
 
 # empty lists to save number of raw and cleaned hits
 number_raw_hits = []
 number_cleaned_hits = []
 
-# process input files
-for input_file in input_files:
+# process input files and write output files
+for input_file, output_file in zip(input_files, output_files):
 
     print('Processing '+str(input_file)+'...')
     print('Starting loading data...')
@@ -103,9 +101,6 @@ for input_file in input_files:
     # drop rows
     df = drop_rows(df)
 
-    # browser mapping
-    df = browser_mapping(df)
-
     # connection type mapping
     df = connection_type_mapping(df)
 
@@ -121,9 +116,6 @@ for input_file in input_files:
     # standard and custom events mapping
     df = custom_and_standard_events_mapping(df)
 
-    # operating system mapping
-    df = operating_system_mapping(df)
-
     # referrer type mapping
     df = referrer_type_mapping(df)
 
@@ -135,15 +127,15 @@ for input_file in input_files:
 
     # rename columns
     df = rename_columns(df)
-
+    
+    # drop columns
+    df = drop_columns(df)
+	
     # fill missing and faulty values
     df = fill_missing_and_faulty_values(df)
 
     # cast data types
     df = cast_data_types(df)
-
-    # drop columns
-    df = drop_columns(df)
 
     # append number of cleaned hits to cleaned hits list
     number_cleaned_hits.append(df.shape[0])
@@ -151,7 +143,7 @@ for input_file in input_files:
     # write data
     print('Starting writing data...')
 
-    df.to_csv('../data/processed_data/'+output_file, compression='gzip', sep='\t', encoding='iso-8859-1', index=False, mode='a')
+    df.to_pickle('../data/processed_data/'+output_file, compression='gzip')
 
     print('Writing data complete.')
 
@@ -160,12 +152,12 @@ for input_file in input_files:
 
 
 # save number of raw hits
-f = open('../results/descriptives/number_raw_hits', 'w')
+f = open('../results/descriptives/number_raw_hits.txt', 'w')
 f.write(str(number_raw_hits))
 f.close()
 
 # save number of cleaned hits
-f = open('../results/descriptives/number_cleaned_hits', 'w')
+f = open('../results/descriptives/number_cleaned_hits.txt', 'w')
 f.write(str(number_cleaned_hits))
 f.close()
 

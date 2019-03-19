@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime,date
 from device_detector import DeviceDetector
+import re
 
 
 
@@ -42,7 +43,7 @@ def drop_columns(df):
 
     # select columns to keep
     columns_to_keep = ['visitor_id',
-                           'visit_start_time_gmt',
+                       'visit_start_time_gmt',
                        'hit_time_gmt',
                        'date_time',
                        # numerical columns
@@ -58,7 +59,6 @@ def drop_columns(df):
                        'cart_value',
                        'page_view_boolean',
                        'last_purchase_num',
-                       'hit_counter',
                        'standard_search_results_clicked',
                        'standard_search_started',
                        'suggested_search_results_clicked',
@@ -113,7 +113,6 @@ def rename_columns(df):
     df.rename(columns={'ref_type' : 'referrer_type'}, inplace=True)
     df.rename(columns={'post_search_engine' : 'search_engine'}, inplace=True)
     df.rename(columns={'cart_value_(v50)' : 'cart_value'}, inplace=True)
-    df.rename(columns={'server_call_counter_(e1)' : 'hit_counter'}, inplace=True)
     df.rename(columns={'int._stand._search_result_clicked_(e16)' : 'standard_search_results_clicked'}, inplace=True)
     df.rename(columns={'active_stand._search_started_(e17)' : 'standard_search_started'}, inplace=True)
     df.rename(columns={'sugg._search_result_clicked_(e18)' : 'suggested_search_results_clicked'}, inplace=True)
@@ -169,7 +168,6 @@ def cast_data_types(df):
                        'campaign_view_boolean',
                        'page_view_boolean',
                        'last_purchase_num',
-                       'hit_counter',
                        'standard_search_results_clicked',
                        'standard_search_started',
                        'suggested_search_results_clicked',
@@ -204,27 +202,6 @@ def cast_data_types(df):
 
 
 ### MAPPING
-
-def browser_mapping(df):
-
-    print('Starting browser mapping...')
-
-    # load file for browser mapping and select columns
-    browser_mapping = pd.read_csv('../data/mapping_files/browser_type.tsv', sep='\t', header=None)
-    browser_mapping.columns = ['browser_id', 'browser_name']
-
-    # create dictionary for browser mapping
-    browser_mapping_dict = dict(zip(browser_mapping.browser_id, browser_mapping.browser_name))
-
-    # map browsers
-    df['browser'] = df['browser'].map(browser_mapping_dict).fillna(df['browser'])
-    df['browser'] = df['browser'].apply(lambda x: 'Unknown' if x == 0 else x)
-
-    print('Browser mapping complete.')
-
-    return df
-
-
 
 def connection_type_mapping(df):
 
@@ -300,11 +277,12 @@ def custom_marketing_channel_mapping(df):
 
     # load file for custom marketing channel mapping
     custom_marketing_channel_mapping = pd.read_csv('../data/mapping_files/custom_marketing_channels.tsv', sep='\t')
-
+	
     # create dictionary for marketing channel mapping
     custom_marketing_channel_mapping_dict = dict(zip(custom_marketing_channel_mapping.channel_id, custom_marketing_channel_mapping.name))
 
     # map custom marketing channels
+    df['va_closer_id'] = df['va_closer_id'].apply(lambda x: float(x))
     df['va_closer_id'] = df['va_closer_id'].map(custom_marketing_channel_mapping_dict).fillna(df['va_closer_id'])
     df['va_closer_id'] = df['va_closer_id'].apply(lambda x: 'Unknown' if x == 0 else x)
 
@@ -347,26 +325,6 @@ def custom_and_standard_events_mapping(df):
 
 
 
-def operating_system_mapping(df):
-
-    print('Starting operating system mapping...')
-
-    # load file for operating system mapping and select columns
-    operating_system_mapping = pd.read_csv('../data/mapping_files/operating_systems.tsv', sep='\t', header=None)
-    operating_system_mapping.columns = ['operating_system_id', 'operating_system_name']
-
-    # create dictionary for operating system mapping
-    operating_system_mapping_dict = dict(zip(operating_system_mapping.operating_system_id, operating_system_mapping.operating_system_name))
-
-    # map operating systems
-    df['os'] = df['os'].map(operating_system_mapping_dict).fillna(df['os'])
-
-    print('Operating system mapping complete.')
-
-    return df
-
-
-
 def referrer_type_mapping(df):
 
     print('Starting referrer type mapping...')
@@ -403,6 +361,8 @@ def search_engine_mapping(df):
 
     # clean search_engine and keep only general search engine name
     df['post_search_engine'] = df['post_search_engine'].apply(lambda x: str(x).split(' ')[0] if pd.notnull(x) else x)
+    df['post_search_engine'] = df['post_search_engine'].apply(lambda x: 'Google' if x == 'googleadservices.com' else x)
+    df['post_search_engine'] = df['post_search_engine'].apply(lambda x: 'Unknown' if x == '0.0' else x)
 
     print('Search engine mapping complete.')
 
@@ -509,18 +469,199 @@ def process_product_item_prices(df):
 def process_product_categories(df):
 
     print('Starting processing product categories...')
-
-    df['product_categories'] = df['product_categories'].apply(lambda x: x.replace('/', ';'))
-    df['product_categories'] = df['product_categories'].apply(lambda x: x.split(';'))
-    df['product_categories'] = df['product_categories'].apply(lambda x: [x.strip() for x in x])
-    df['product_categories'] = df['product_categories'].apply(lambda x: x[0])
+	
+    product_categories_level_1 = ['Computer & Elektronik', 
+    'Wohnen & Haushalt', 
+    'SchÃ¶nheit & Gesundheit', 
+    'Baumarkt & Garten',
+    'Baby & Spielzeug',
+    'Sport & Freizeit',
+    'Mode & Accessoires',
+    'Lebensmittel & GetrÃ¤nke',
+    'Medien & Unterhaltung']
+	
+    for i in ['_first', '_last']:
+	
+        df['product_categories'+str(i)] = df['product_categories'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else x.split('/'))
+        df['product_categories'+str(i)] = df['product_categories'+str(i)].apply(lambda x: x if x == 'Unknown' else [x.strip() for x in x][0])
+	
+        df['product_categories_level_1'+str(i)] = df['product_categories'+str(i)].apply(lambda x: x if x in product_categories_level_1 else 'Unknown')
 
     print('Processing product categories complete.')
 
     return df
 
+	
+	
+def process_net_promoter_score(df):
+
+    print('Starting processing net promoter score...')
+	
+    for i in ['_first', '_last']:
+	
+        df['net_promoter_score'+str(i)] = df['net_promoter_score'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else ('8' if x == '8th' else str(int(x))))
+
+    print('Processing net promoter score complete.')
+	
+    return df
+
+	
+
+def process_user_gender(df):
+
+    print('Starting processing user gender...')
+	
+    for i in ['_first', '_last']:
+	
+        df['user_gender'+str(i)] = df['user_gender'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else ('female' if x == 'Frau' else 'male'))
+ 
+    print('Processing user gender complete.')
+   
+    return df
+	
+
+	
+def process_user_age(df):
+
+    print('Starting user age...')
+
+    for i in ['_first', '_last']:
+	
+        df['user_age'+str(i)] = df['user_age'+str(i)].apply(lambda x: 0 if pd.isnull(x) else (int(x) if re.match('^([1][9][0-9][0-9]|[2][0][0][0-2])$', x) else 0))
+
+    print('Processing user age complete.')
+	
+    return df
+	
+
+	
+def process_search_engines(df):
+
+    print('Starting processing search engines...')
+
+    search_engines_to_keep = ['Google', 
+	'Unknown', 
+	'Microsoft', 
+	'Yahoo!']
+	
+    for i in ['_first', '_last']:
+	
+        df['search_engine_reduced'+str(i)] = df['search_engine'+str(i)].apply(lambda x: x if x in search_engines_to_keep else 'Other')
+
+    print('Processing search engines complete.')
+	
+    return df
+	
+	
+def process_device_types(df):
+
+    print('Starting processing device types...')
+
+    device_types_to_keep = ['smartphone', 
+	'desktop', 
+	'tablet', 
+	'phablet', 
+	'Unknown', 
+	'portable media player']
+	
+    for i in ['_first', '_last']:
+	
+        df['device_type_user_agent_reduced'+str(i)] = df['device_type_user_agent'+str(i)].apply(lambda x: x if x in device_types_to_keep else 'Other')
+
+    print('Processing device types complete.')
+	
+    return df	
 
 
+	
+def process_device_brand_names(df):
+
+    print('Starting processing device brand names...')
+
+    device_brand_names_to_keep = ['Apple', 
+	'Unknown', 
+	'Samsung', 
+	'Sony', 
+	'HTC', 
+	'Huawei', 
+	'Google', 
+	'LG', 
+	'Nokia', 
+	'Microsoft', 
+	'Wiko', 
+	'Lenovo', 
+	'Acer', 
+	'Asus', 
+	'RIM', 
+	'Motorola', 
+	'OnePlus', 
+	'Toshiba']
+	
+    for i in ['_first', '_last']:
+	
+        df['device_brand_name_user_agent_reduced'+str(i)] = df['device_brand_name_user_agent'+str(i)].apply(lambda x: x if x in device_brand_names_to_keep else 'Other')
+
+    print('Processing device brand names complete.')
+	
+    return df
+	
+	
+	
+def process_device_operating_systems(df):
+
+    print('Starting processing device operating systems...')
+
+    device_operating_systems_to_keep = ['iOS',
+	'Windows',
+	'Android',
+	'Mac',
+	'Windows Phone',
+	'GNU/Linux',
+	'Unknown',
+	'Ubuntu',
+	'Chrome OS']
+	
+    for i in ['_first', '_last']:
+	
+        df['device_operating_system_user_agent_reduced'+str(i)] = df['device_operating_system_user_agent'+str(i)].apply(lambda x: x if x in device_operating_systems_to_keep else 'Other')    
+
+    print('Processing device operating systems complete.')
+
+    return df
+
+	
+	
+def process_device_browsers(df):
+
+    print('Starting processing device browsers...')
+
+    device_browsers_to_keep = ['Mobile Safari',
+	'Chrome',
+	'Chrome Mobile',
+	'Internet Explorer',
+	'Samsung Browser',
+	'Firefox',
+	'Facebook',
+	'Safari',
+	'Microsoft Edge',
+	'Android Browser',
+	'Chrome Mobile iOS',
+	'Firefox Mobile',
+	'IE Mobile',
+	'Opera',
+	'Blackberry Browser',
+	'Opera Mobile']	
+
+    for i in ['_first', '_last']:	
+	
+        df['device_browser_user_agent_reduced'+str(i)] = df['device_browser_user_agent'+str(i)].apply(lambda x: x if x in device_browsers_to_keep else 'Other')    
+
+    print('Processing device browsers complete.')
+
+    return df
+	
+	
+	
 ### DESCRIPTIVES
 
 def save_run_time(run_time_dict_file, run_time_dict):
