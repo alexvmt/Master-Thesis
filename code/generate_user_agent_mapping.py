@@ -26,7 +26,7 @@ print('Loading data...')
 input_file = 'clickstream_0516-1016_raw.tsv.gz'
 
 # output file
-output_file = 'user_agent_mapping.tsv.gz'
+output_file = 'user_agent_mapping.pkl.gz'
     
 # load column headers
 column_headers = pd.read_csv('../data/mapping_files/column_headers.tsv', sep='\t')
@@ -51,7 +51,7 @@ user_agent_mapping_df = generate_user_agent_mapping(df)
 
 print('Starting writing data...')
 
-user_agent_mapping_df.to_csv('../data/mapping_files/'+output_file, compression='gzip', sep='\t', encoding='iso-8859-1', index=False)
+user_agent_mapping_df.to_pickle('../data/mapping_files/'+output_file, compression='gzip')
 
 print('Writing data complete.')
 

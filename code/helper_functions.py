@@ -68,8 +68,6 @@ def drop_columns(df):
                        'persistent_cookie',
                        'search_page_num',
                        'connection_type',
-                       'browser',
-                       'operating_system',
                        'search_engine',
                        'marketing_channel',
                        'referrer_type',
@@ -421,7 +419,7 @@ def user_agent_mapping(df):
     df['user_agent'] = df['user_agent'].fillna('Unknown')
 
     # load file for user agent mapping
-    user_agent_mapping = pd.read_csv('../data/mapping_files/user_agent_mapping.tsv.gz', compression='gzip', sep='\t', encoding='iso-8859-1', quoting=3, low_memory=False)
+    user_agent_mapping = pd.read_pickle('../data/mapping_files/user_agent_mapping.pkl.gz', compression='gzip')
 
     # merge user agent mapping and df
     df = pd.merge(df, user_agent_mapping, how='left', on='user_agent')
@@ -446,7 +444,7 @@ def process_product_items(df):
 
     print('Starting processing product items...')
 
-    df['num_product_items_seen'] = df['product_items'].apply(lambda x: len([x for x in x.split(';') if x]) if pd.notnull(x) else 0)
+    df['product_items'] = df['product_items'].apply(lambda x: len([x for x in x.split(';') if x]) if pd.notnull(x) else 0)
 
     print('Processing product items complete.')
 
@@ -458,7 +456,7 @@ def process_product_item_prices(df):
 
     print('Starting processing product item prices...')
 
-    df['sum_price_product_items_seen'] = df['product_item_price'].apply(lambda x: sum([float(x) for x in x.split(';') if x]) if (pd.notnull(x)) & (x != 'product_item_price') else 0)
+    df['product_item_price'] = df['product_item_price'].apply(lambda x: sum([float(x) for x in x.split(';') if x]) if (pd.notnull(x)) & (x != 'product_item_price') else 0)
 
     print('Processing product item prices complete.')
 
@@ -487,6 +485,8 @@ def process_product_categories(df):
 	
         df['product_categories_level_1'+str(i)] = df['product_categories'+str(i)].apply(lambda x: x if x in product_categories_level_1 else 'Unknown')
 
+        df.drop('product_categories'+str(i), axis=1, inplace=True)
+		
     print('Processing product categories complete.')
 
     return df
@@ -548,6 +548,8 @@ def process_search_engines(df):
 	
         df['search_engine_reduced'+str(i)] = df['search_engine'+str(i)].apply(lambda x: x if x in search_engines_to_keep else 'Other')
 
+        df.drop('search_engine'+str(i), axis=1, inplace=True)
+		
     print('Processing search engines complete.')
 	
     return df
@@ -568,6 +570,8 @@ def process_device_types(df):
 	
         df['device_type_user_agent_reduced'+str(i)] = df['device_type_user_agent'+str(i)].apply(lambda x: x if x in device_types_to_keep else 'Other')
 
+        df.drop('device_type_user_agent'+str(i), axis=1, inplace=True)		
+		
     print('Processing device types complete.')
 	
     return df	
@@ -600,6 +604,8 @@ def process_device_brand_names(df):
     for i in ['_first', '_last']:
 	
         df['device_brand_name_user_agent_reduced'+str(i)] = df['device_brand_name_user_agent'+str(i)].apply(lambda x: x if x in device_brand_names_to_keep else 'Other')
+        
+        df.drop('device_brand_name_user_agent'+str(i), axis=1, inplace=True)		
 
     print('Processing device brand names complete.')
 	
@@ -625,6 +631,8 @@ def process_device_operating_systems(df):
 	
         df['device_operating_system_user_agent_reduced'+str(i)] = df['device_operating_system_user_agent'+str(i)].apply(lambda x: x if x in device_operating_systems_to_keep else 'Other')    
 
+        df.drop('device_operating_system_user_agent'+str(i), axis=1, inplace=True)
+		
     print('Processing device operating systems complete.')
 
     return df
@@ -656,6 +664,8 @@ def process_device_browsers(df):
 	
         df['device_browser_user_agent_reduced'+str(i)] = df['device_browser_user_agent'+str(i)].apply(lambda x: x if x in device_browsers_to_keep else 'Other')    
 
+        df.drop('device_browser_user_agent'+str(i), axis=1, inplace=True)
+		
     print('Processing device browsers complete.')
 
     return df

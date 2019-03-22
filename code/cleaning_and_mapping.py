@@ -47,12 +47,10 @@ for input_file, output_file in zip(input_files, output_files):
     # select columns
     columns = ['exclude_hit',
                'hit_source',
-               'browser',
                'connection_type',
                'country',
                'va_closer_id',
                'post_event_list',
-               'os',
                'ref_type',
                'post_search_engine',
                'user_agent',
