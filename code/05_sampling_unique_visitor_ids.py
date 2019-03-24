@@ -15,6 +15,8 @@ import pandas as pd
 from random import shuffle
 import pickle
 
+from helper_functions import *
+
 
 
 # input file
@@ -41,19 +43,16 @@ shuffle(unique_visitor_ids)
 # write data
 print('Starting writing data...')
 
-with open(output_file, 'wb') as f:
+with open('../data/processed_data/'+output_file, 'wb') as f:
    pickle.dump(unique_visitor_ids, f)
 
 print('Writing data complete.')
 
 
 
-# save run time
 print('Sampling unique visitor ids complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-run_time_dict_file = 'sampling_unique_visitor_ids_run_time.txt'
-run_time_dict = {'sampling unique visitor ids run time' : run_time}
-
-save_run_time(run_time_dict_file, run_time_dict)
+# save run time
+save_descriptives('../results/descriptives/sampling_unique_visitor_ids_run_time.txt', run_time)

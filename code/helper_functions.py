@@ -674,8 +674,8 @@ def process_device_browsers(df):
 	
 ### DESCRIPTIVES
 
-def save_run_time(run_time_dict_file, run_time_dict):
+def save_descriptives(file, descriptives):
 
-    f = open('../results/descriptives/'+run_time_dict_file, 'w')
-    f.write(str(run_time_dict))
+    f = open(file, 'w')
+    f.write(str(descriptives))
     f.close()

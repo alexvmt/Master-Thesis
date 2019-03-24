@@ -120,12 +120,9 @@ print('Writing data complete.')
 
 
 
-# save run time
 print('Aggregation complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-run_time_dict_file = 'aggregation_run_time.txt'
-run_time_dict = {'aggregation run time' : run_time}
-
-save_run_time(run_time_dict_file, run_time_dict)
+# save run time
+save_descriptives('../results/descriptives/aggregation_run_time.txt', run_time)

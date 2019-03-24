@@ -57,12 +57,9 @@ print('Writing data complete.')
 
 
 
-# save run time
 print('Generating user agent mapping complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-run_time_dict_file = 'generate_user_agent_mapping_run_time.txt'
-run_time_dict = {'generate user agent mapping run time' : run_time}
-
-save_run_time(run_time_dict_file, run_time_dict)
+# save run time
+save_descriptives('../results/descriptives/generate_user_agent_mapping_run_time.txt', run_time)

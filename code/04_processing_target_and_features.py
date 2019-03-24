@@ -100,9 +100,7 @@ df = process_device_operating_systems(df)
 df = process_device_browsers(df)
 
 # encode other categorical features (correlated and static features, fill gaps between first and last for static features like age or gender)
-categorical_features = ['country_first',
-'country_last',
-'connection_type_first',
+categorical_features = ['connection_type_first',
 'connection_type_last',
 'marketing_channel_first',
 'marketing_channel_last',
@@ -263,7 +261,8 @@ df['purchase_in_last_28_plus_days'] = df['purchase_in_last_28_plus_days'].astype
 
 
 # drop columns not needed anymore
-columns_to_drop = ['hit_time_gmt_min',
+columns_to_drop = ['purchase_boolean_sum',
+'hit_time_gmt_min',
 'hit_time_gmt_max',
 'date_time_min',
 'date_time_max',
@@ -293,12 +292,9 @@ print('Writing data complete.')
 
 
 
-# save run time
 print('Processing target and features complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-run_time_dict_file = 'processing_target_and_features_run_time.txt'
-run_time_dict = {'processing target and features run time' : run_time}
-
-save_run_time(run_time_dict_file, run_time_dict)
+# save run time
+save_descriptives('../results/descriptives/processing_target_and_features_run_time.txt', run_time)
