@@ -1,0 +1,323 @@
+### 01 GENERATE USER AGENT MAPPING (~43 min)
+tmux new -s ua
+tmux a -t ua
+python -W ignore 01_generate_user_agent_mapping.py
+
+
+
+### 02 CLEANING AND MAPPING (max ~26 min)
+tmux new -s cm5
+tmux a -t cm5
+python -W ignore 02_cleaning_and_mapping.py clickstream_0516_raw.tsv.gz clickstream_0516_cleaned_and_mapped.pkl.gz
+
+tmux new -s cm6
+tmux a -t cm6
+python -W ignore 02_cleaning_and_mapping.py clickstream_0616_raw.tsv.gz clickstream_0616_cleaned_and_mapped.pkl.gz
+
+tmux new -s cm7
+tmux a -t cm7
+python -W ignore 02_cleaning_and_mapping.py clickstream_0716_raw.tsv.gz clickstream_0716_cleaned_and_mapped.pkl.gz
+
+tmux new -s cm8
+tmux a -t cm8
+python -W ignore 02_cleaning_and_mapping.py clickstream_0816_raw.tsv.gz clickstream_0816_cleaned_and_mapped.pkl.gz
+
+tmux new -s cm9
+tmux a -t cm9
+python -W ignore 02_cleaning_and_mapping.py clickstream_0916_raw.tsv.gz clickstream_0916_cleaned_and_mapped.pkl.gz
+
+tmux new -s cm10
+tmux a -t cm10
+python -W ignore 02_cleaning_and_mapping.py clickstream_1016_raw.tsv.gz clickstream_1016_cleaned_and_mapped.pkl.gz
+
+
+
+### 03 AGGREGATION (~30 min)
+tmux new -s agg
+tmux a -t agg
+python -W ignore 03_aggregation.py
+
+
+
+### 04 PREPARING TARGET AND FEATURES (~31 min)
+tmux new -s ptf
+tmux a -t ptf
+python -W ignore 04_preparing_targets_and_features.py
+
+
+
+### 05 SELECTING AND SHUFFLING UNIQUE VISITOR IDS (< 1 min)
+tmux new -s ssv
+tmux a -t ssv
+python -W ignore 05_selecting_and_shuffling_unique_visitor_ids.py
+
+
+
+### 06 FEATURE SELECTION (~ 2 min)
+tmux new -s fs
+tmux a -t fs
+python -W ignore 06_feature_selection.py 100000 first
+
+
+
+### 07 PREPROCESSING AND DESCRIPTIVES (max ~10 min)
+tmux new -s pd1
+tmux a -t pd1
+python -W ignore 07_preprocessing_and_descriptives.py 100000 first
+
+tmux new -s pd2
+tmux a -t pd2
+python -W ignore 07_preprocessing_and_descriptives.py 200000 first
+
+tmux new -s pd4
+tmux a -t pd4
+python -W ignore 07_preprocessing_and_descriptives.py 400000 first
+
+tmux new -s pd8
+tmux a -t pd8
+python -W ignore 07_preprocessing_and_descriptives.py 800000 first
+
+tmux new -s pd16
+tmux a -t pd16
+python -W ignore 07_preprocessing_and_descriptives.py 1600000 first
+
+
+
+### 08 CROSS VALIDATION
+
+
+
+
+### 09 MODELING
+
+tmux new -s lr24
+tmux a -t lr24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours LR
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours LR
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours LR
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours LR
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours LR
+
+tmux new -s lr7
+tmux a -t lr7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days LR
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days LR
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days LR
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days LR
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days LR
+
+
+
+tmux new -s dt24
+tmux a -t dt24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours DT
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours DT
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours DT
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours DT
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours DT
+
+tmux new -s dt7
+tmux a -t dt7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days DT
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days DT
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days DT
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days DT
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days DT
+
+
+
+tmux new -s nb24
+tmux a -t nb24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours NB
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours NB
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours NB
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours NB
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours NB
+
+tmux new -s nb7
+tmux a -t nb7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days NB
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days NB
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days NB
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days NB
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days NB
+
+
+
+tmux new -s knn24
+tmux a -t knn24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours KNN
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours KNN
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours KNN
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours KNN
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours KNN
+
+tmux new -s knn7
+tmux a -t knn7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days KNN
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days KNN
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days KNN
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days KNN
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days KNN
+
+
+
+tmux new -s rf24
+tmux a -t rf24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours RF
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours RF
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours RF
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours RF
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours RF
+
+tmux new -s rf7
+tmux a -t rf7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days RF
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days RF
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days RF
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days RF
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days RF
+
+
+
+tmux new -s svm24
+tmux a -t svm24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours SVM
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours SVM
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours SVM
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours SVM
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours SVM
+
+tmux new -s svm7
+tmux a -t svm7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days SVM
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days SVM
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days SVM
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days SVM
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days SVM
+
+
+
+tmux new -s boost24
+tmux a -t boost24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours BOOST
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours BOOST
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours BOOST
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours BOOST
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours BOOST
+
+tmux new -s boost7
+tmux a -t boost7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days BOOST
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days BOOST
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days BOOST
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days BOOST
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days BOOST
+
+
+
+tmux new -s bag24
+tmux a -t bag24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours BAG
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours BAG
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours BAG
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours BAG
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours BAG
+
+tmux new -s bag7
+tmux a -t bag7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days BAG
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days BAG
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days BAG
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days BAG
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days BAG
+
+
+
+tmux new -s nn124
+tmux a -t nn124
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours NN1
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours NN1
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours NN1
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours NN1
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours NN1
+
+tmux new -s nn17
+tmux a -t nn17
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days NN1
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days NN1
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days NN1
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days NN1
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days NN1
+
+
+
+tmux new -s nn324
+tmux a -t nn324
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours NN3
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours NN3
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours NN3
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours NN3
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours NN3
+
+tmux new -s nn37
+tmux a -t nn37
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days NN3
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days NN3
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days NN3
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days NN3
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days NN3
+
+
+
+tmux new -s nn524
+tmux a -t nn524
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours NN5
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours NN5
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours NN5
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours NN5
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours NN5
+
+tmux new -s nn57
+tmux a -t nn57
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days NN5
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days NN5
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days NN5
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days NN5
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days NN5
+
+
+
+tmux new -s rnn24
+tmux a -t rnn24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours RNN
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours RNN
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours RNN
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours RNN
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours RNN
+
+tmux new -s rnn7
+tmux a -t rnn7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days RNN
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days RNN
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days RNN
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days RNN
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days RNN
+
+
+
+tmux new -s lstm24
+tmux a -t lstm24
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_24_hours LSTM
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_24_hours LSTM
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_24_hours LSTM
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_24_hours LSTM
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_24_hours LSTM
+
+tmux new -s lstm7
+tmux a -t lstm7
+python -W ignore 09_modeling.py train_100000.pkl.gz purchase_within_next_7_days LSTM
+python -W ignore 09_modeling.py train_200000.pkl.gz purchase_within_next_7_days LSTM
+python -W ignore 09_modeling.py train_400000.pkl.gz purchase_within_next_7_days LSTM
+python -W ignore 09_modeling.py train_800000.pkl.gz purchase_within_next_7_days LSTM
+python -W ignore 09_modeling.py train_1600000.pkl.gz purchase_within_next_7_days LSTM

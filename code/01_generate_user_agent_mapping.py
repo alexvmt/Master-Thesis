@@ -19,7 +19,6 @@ from helper_functions import *
 
 
 ### LOAD DATA
-
 print('Loading data...')
 
 # input file
@@ -61,5 +60,5 @@ print('Generating user agent mapping complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-# save run time
-save_descriptives('../results/descriptives/generate_user_agent_mapping_run_time.txt', run_time)
+# save script run time
+save_script_run_time('../results/descriptives/generate_user_agent_mapping_run_time.txt', run_time)

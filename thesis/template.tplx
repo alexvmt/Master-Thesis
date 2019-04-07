@@ -1,0 +1,14 @@
+((*- extends 'article.tplx' -*))
+
+((* block author *))
+\author{Alexander Merdian-Tarko}
+((* endblock author *))
+
+((* block title *))
+\title{Evaluation of Machine Learning and Deep Learning Models for Customer Journey Prediction in E-Commerce - An Executive Perspective}
+((* endblock title *))
+
+((* block bibliography *))
+\bibliographystyle{apalike}
+\bibliography{references}
+((* endblock bibliography *))

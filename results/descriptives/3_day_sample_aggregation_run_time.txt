@@ -1,1 +1,0 @@
-{'aggregation run time': datetime.timedelta(seconds=67, microseconds=328444)}

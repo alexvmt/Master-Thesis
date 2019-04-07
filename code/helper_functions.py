@@ -18,8 +18,8 @@ def drop_rows(df):
 
     print('Starting dropping rows...')
 
-    # keep rows where exclude_hit is <= 0
-    df = df[df['exclude_hit'] <= 0]
+    # keep rows where exclude_hit is == 0
+    df = df[df['exclude_hit'] == 0]
 
     # keep rows where hit_source != 5, 7, 8 or 9
     df = df[(df['hit_source'] != 5) | (df['hit_source'] != 7) |(df['hit_source'] != 8) |(df['hit_source'] != 9)]
@@ -27,7 +27,7 @@ def drop_rows(df):
     # keep rows where visitor_id is not missing (6 missing values)
     df = df[pd.notnull(df['visitor_id'])]
 
-    # clean visit_page_num and keep rows where visit_page_num is not missing or faulty (118 missing values and 269 faulty values)
+    # clean visit_page_num and keep rows where visit_page_num is not missing or faulty (118 missing and 269 faulty values)
     df['visit_page_num'] = df['visit_page_num'].apply(lambda x: np.nan if len(str(x)) > 10 else x)
     df = df[pd.notnull(df['visit_page_num'])]
 
@@ -43,55 +43,55 @@ def drop_columns(df):
 
     # select columns to keep
     columns_to_keep = ['visitor_id',
-                       'visit_start_time_gmt',
-                       'hit_time_gmt',
-                       'date_time',
-                       # numerical columns
-                       'visit_num',
-                       'visit_page_num',
-                       'purchase_boolean',
-                       'product_view_boolean',
-                       'checkout_boolean',
-                       'cart_addition_boolean',
-                       'cart_removal_boolean',
-                       'cart_view_boolean',
-                       'campaign_view_boolean',
-                       'cart_value',
-                       'page_view_boolean',
-                       'last_purchase_num',
-                       'standard_search_results_clicked',
-                       'standard_search_started',
-                       'suggested_search_results_clicked',
-                       # categorical columns
-                       'country',
-                       'cookies',
-                       'persistent_cookie',
-                       'search_page_num',
-                       'connection_type',
-                       'search_engine',
-                       'marketing_channel',
-                       'referrer_type',
-                       'new_visit',
-                       'hourly_visitor',
-                       'daily_visitor',
-                       'weekly_visitor',
-                       'monthly_visitor',
-                       'quarterly_visitor',
-                       'yearly_visitor',
-                       'product_items',
-                       'product_item_price',
-                       'product_categories',
-                       'device_type_user_agent',
-                       'device_brand_name_user_agent',
-                       'device_operating_system_user_agent',
-                       'device_browser_user_agent',
-                       'repeat_orders',
-                       'net_promoter_score',
-                       'hit_of_logged_in_user',
-                       'registered_user',
-                       'user_gender',
-                       'user_age',
-                       'visit_during_tv_spot']
+    'visit_start_time_gmt',
+    'hit_time_gmt',
+    'date_time',
+    # numerical columns
+    'visit_num',
+    'visit_page_num',
+    'purchase_boolean',
+    'product_view_boolean',
+    'checkout_boolean',
+    'cart_addition_boolean',
+    'cart_removal_boolean',
+    'cart_view_boolean',
+    'campaign_view_boolean',
+    'cart_value',
+    'page_view_boolean',
+    'last_purchase_num',
+    'standard_search_results_clicked',
+    'standard_search_started',
+    'suggested_search_results_clicked',
+    # categorical columns
+    'country',
+    'cookies',
+    'persistent_cookie',
+    'search_page_num',
+    'connection_type',
+    'search_engine',
+    'marketing_channel',
+    'referrer_type',
+    'new_visit',
+    'hourly_visitor',
+    'daily_visitor',
+    'weekly_visitor',
+    'monthly_visitor',
+    'quarterly_visitor',
+    'yearly_visitor',
+    'product_items',
+    'product_item_price',
+    'product_categories',
+    'device_type_user_agent',
+    'device_brand_name_user_agent',
+    'device_operating_system_user_agent',
+    'device_browser_user_agent',
+    'repeat_orders',
+    'net_promoter_score',
+    'hit_of_logged_in_user',
+    'registered_user',
+    'user_gender',
+    'user_age',
+    'visit_during_tv_spot']
 
     # subset dataframe to select only columns to keep
     df = df[columns_to_keep]
@@ -156,39 +156,36 @@ def cast_data_types(df):
 
     # integer columns
     integer_columns = ['visit_num',
-                       'visit_page_num',
-                       'purchase_boolean',
-                       'product_view_boolean',
-                       'checkout_boolean',
-                       'cart_addition_boolean',
-                       'cart_removal_boolean',
-                       'cart_view_boolean',
-                       'campaign_view_boolean',
-                       'page_view_boolean',
-                       'last_purchase_num',
-                       'standard_search_results_clicked',
-                       'standard_search_started',
-                       'suggested_search_results_clicked',
-                       'cookies',
-                       'persistent_cookie',
-                       'search_page_num',
-                       'new_visit',
-                       'hourly_visitor',
-                       'daily_visitor',
-                       'weekly_visitor',
-                       'monthly_visitor',
-                       'quarterly_visitor',
-                       'yearly_visitor',
-                       'repeat_orders',
-                       'hit_of_logged_in_user',
-                       'registered_user',
-                       'visit_during_tv_spot']
+    'visit_page_num',
+    'purchase_boolean',
+    'product_view_boolean',
+    'checkout_boolean',
+    'cart_addition_boolean',
+    'cart_removal_boolean',
+    'cart_view_boolean',
+    'campaign_view_boolean',
+    'page_view_boolean',
+    'last_purchase_num',
+    'standard_search_results_clicked',
+    'standard_search_started',
+    'suggested_search_results_clicked',
+    'cookies',
+    'persistent_cookie',
+    'search_page_num',
+    'new_visit',
+    'hourly_visitor',
+    'daily_visitor',
+    'weekly_visitor',
+    'monthly_visitor',
+    'quarterly_visitor',
+    'yearly_visitor',
+    'repeat_orders',
+    'hit_of_logged_in_user',
+    'registered_user',
+    'visit_during_tv_spot']
 
     for column in integer_columns:
-        if column in df.columns:
-            df[column] = df[column].apply(lambda x: int(float(x)))
-        else:
-            pass
+        df[column] = df[column].apply(lambda x: int(float(x)))
 
     # float column
     df['cart_value'] = df['cart_value'].apply(lambda x: float(x))
@@ -377,11 +374,11 @@ def generate_user_agent_mapping(df):
 
     # create dataframe for user agent mapping and fill with unique user agents
     columns = ['user_agent',
-               'device_type_user_agent',
-               'device_brand_name_user_agent',
-               'device_operating_system_user_agent',
-               'device_browser_user_agent',
-               'device_is_bot_user_agent']
+    'device_type_user_agent',
+    'device_brand_name_user_agent',
+    'device_operating_system_user_agent',
+    'device_browser_user_agent',
+    'device_is_bot_user_agent']
     index = np.arange(df['user_agent'].nunique())
     user_agent_mapping_df = pd.DataFrame(index=index, columns=columns)
     user_agent_mapping_df['user_agent'] = df['user_agent'].unique()
@@ -419,7 +416,7 @@ def user_agent_mapping(df):
     df['user_agent'] = df['user_agent'].fillna('Unknown')
 
     # load file for user agent mapping
-    user_agent_mapping = pd.read_pickle('../data/mapping_files/user_agent_mapping.pkl.gz', compression='gzip')
+    user_agent_mapping = pd.read_pickle('../data/mapping_files/user_agent_mapping.pkl.gz')
 
     # merge user agent mapping and df
     df = pd.merge(df, user_agent_mapping, how='left', on='user_agent')
@@ -444,6 +441,7 @@ def process_product_items(df):
 
     print('Starting processing product items...')
 
+    # sum of product items per hit
     df['product_items'] = df['product_items'].apply(lambda x: len([x for x in x.split(';') if x]) if pd.notnull(x) else 0)
 
     print('Processing product items complete.')
@@ -456,6 +454,7 @@ def process_product_item_prices(df):
 
     print('Starting processing product item prices...')
 
+    # sum of product items prices per hit
     df['product_item_price'] = df['product_item_price'].apply(lambda x: sum([float(x) for x in x.split(';') if x]) if (pd.notnull(x)) & (x != 'product_item_price') else 0)
 
     print('Processing product item prices complete.')
@@ -468,6 +467,7 @@ def process_product_categories(df):
 
     print('Starting processing product categories...')
 	
+    # select level 1 product categories	
     product_categories_level_1 = ['Computer & Elektronik', 
     'Wohnen & Haushalt', 
     'SchÃ¶nheit & Gesundheit', 
@@ -478,6 +478,7 @@ def process_product_categories(df):
     'Lebensmittel & GetrÃ¤nke',
     'Medien & Unterhaltung']
 	
+    # clean product categories and keep only level 1 product categories
     for i in ['_first', '_last']:
 	
         df['product_categories'+str(i)] = df['product_categories'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else x.split('/'))
@@ -497,6 +498,7 @@ def process_net_promoter_score(df):
 
     print('Starting processing net promoter score...')
 	
+    # clean net promoter score and fill missing values
     for i in ['_first', '_last']:
 	
         df['net_promoter_score'+str(i)] = df['net_promoter_score'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else ('8' if x == '8th' else str(int(x))))
@@ -511,6 +513,7 @@ def process_user_gender(df):
 
     print('Starting processing user gender...')
 	
+    # clean user gender and fill missing values
     for i in ['_first', '_last']:
 	
         df['user_gender'+str(i)] = df['user_gender'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else ('female' if x == 'Frau' else 'male'))
@@ -525,6 +528,7 @@ def process_user_age(df):
 
     print('Starting user age...')
 
+    # clean user age and fill missing values
     for i in ['_first', '_last']:
 	
         df['user_age'+str(i)] = df['user_age'+str(i)].apply(lambda x: 0 if pd.isnull(x) else (int(x) if re.match('^([1][9][0-9][0-9]|[2][0][0][0-2])$', x) else 0))
@@ -539,11 +543,13 @@ def process_search_engines(df):
 
     print('Starting processing search engines...')
 
+    # select search engines to keep
     search_engines_to_keep = ['Google', 
-	'Unknown', 
-	'Microsoft', 
-	'Yahoo!']
+    'Unknown', 
+    'Microsoft', 
+    'Yahoo!']
 	
+    # clean search engines and keep only selected
     for i in ['_first', '_last']:
 	
         df['search_engine_reduced'+str(i)] = df['search_engine'+str(i)].apply(lambda x: x if x in search_engines_to_keep else 'Other')
@@ -559,13 +565,15 @@ def process_device_types(df):
 
     print('Starting processing device types...')
 
+    # select device types to keep
     device_types_to_keep = ['smartphone', 
-	'desktop', 
-	'tablet', 
-	'phablet', 
-	'Unknown', 
-	'portable media player']
+    'desktop', 
+    'tablet', 
+    'phablet', 
+    'Unknown', 
+    'portable media player']
 	
+    # clean device types and keep only selected
     for i in ['_first', '_last']:
 	
         df['device_type_user_agent_reduced'+str(i)] = df['device_type_user_agent'+str(i)].apply(lambda x: x if x in device_types_to_keep else 'Other')
@@ -582,25 +590,27 @@ def process_device_brand_names(df):
 
     print('Starting processing device brand names...')
 
+    # select brand names to keep
     device_brand_names_to_keep = ['Apple', 
-	'Unknown', 
-	'Samsung', 
-	'Sony', 
-	'HTC', 
-	'Huawei', 
-	'Google', 
-	'LG', 
-	'Nokia', 
-	'Microsoft', 
-	'Wiko', 
-	'Lenovo', 
-	'Acer', 
-	'Asus', 
-	'RIM', 
-	'Motorola', 
-	'OnePlus', 
-	'Toshiba']
+    'Unknown', 
+    'Samsung', 
+    'Sony', 
+    'HTC', 
+    'Huawei', 
+    'Google', 
+    'LG', 
+    'Nokia', 
+    'Microsoft', 
+    'Wiko', 
+    'Lenovo', 
+    'Acer', 
+    'Asus', 
+    'RIM', 
+    'Motorola', 
+    'OnePlus', 
+    'Toshiba']
 	
+    # clean brand names and keep only selected
     for i in ['_first', '_last']:
 	
         df['device_brand_name_user_agent_reduced'+str(i)] = df['device_brand_name_user_agent'+str(i)].apply(lambda x: x if x in device_brand_names_to_keep else 'Other')
@@ -617,16 +627,18 @@ def process_device_operating_systems(df):
 
     print('Starting processing device operating systems...')
 
+    # select operating systems to keep
     device_operating_systems_to_keep = ['iOS',
-	'Windows',
-	'Android',
-	'Mac',
-	'Windows Phone',
-	'GNU/Linux',
-	'Unknown',
-	'Ubuntu',
-	'Chrome OS']
+    'Windows',
+    'Android',
+    'Mac',
+    'Windows Phone',
+    'GNU/Linux',
+    'Unknown',
+    'Ubuntu',
+    'Chrome OS']
 	
+    # clean operating systems and keep only selected
     for i in ['_first', '_last']:
 	
         df['device_operating_system_user_agent_reduced'+str(i)] = df['device_operating_system_user_agent'+str(i)].apply(lambda x: x if x in device_operating_systems_to_keep else 'Other')    
@@ -643,23 +655,25 @@ def process_device_browsers(df):
 
     print('Starting processing device browsers...')
 
+    # select browser to keep
     device_browsers_to_keep = ['Mobile Safari',
-	'Chrome',
-	'Chrome Mobile',
-	'Internet Explorer',
-	'Samsung Browser',
-	'Firefox',
-	'Facebook',
-	'Safari',
-	'Microsoft Edge',
-	'Android Browser',
-	'Chrome Mobile iOS',
-	'Firefox Mobile',
-	'IE Mobile',
-	'Opera',
-	'Blackberry Browser',
-	'Opera Mobile']	
+    'Chrome',
+    'Chrome Mobile',
+    'Internet Explorer',
+    'Samsung Browser',
+    'Firefox',
+    'Facebook',
+    'Safari',
+    'Microsoft Edge',
+    'Android Browser',
+    'Chrome Mobile iOS',
+    'Firefox Mobile',
+    'IE Mobile',
+    'Opera',
+    'Blackberry Browser',
+    'Opera Mobile']	
 
+    # clean browsers and keep only selected
     for i in ['_first', '_last']:	
 	
         df['device_browser_user_agent_reduced'+str(i)] = df['device_browser_user_agent'+str(i)].apply(lambda x: x if x in device_browsers_to_keep else 'Other')    
@@ -671,11 +685,11 @@ def process_device_browsers(df):
     return df
 	
 	
-	
-### DESCRIPTIVES
 
-def save_descriptives(file, descriptives):
+### SAVE SCRIPT RUN TIME
+
+def save_script_run_time(file, run_time):
 
     f = open(file, 'w')
-    f.write(str(descriptives))
+    f.write(str(run_time))
     f.close()

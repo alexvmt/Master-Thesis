@@ -17,29 +17,30 @@ from helper_functions import *
 
 
 
+### LOAD DATA
+print('Starting loading data...')
+
 # input files
 input_files = ['clickstream_0516_cleaned_and_mapped.pkl.gz',
-               'clickstream_0616_cleaned_and_mapped.pkl.gz',
-               'clickstream_0716_cleaned_and_mapped.pkl.gz',
-               'clickstream_0816_cleaned_and_mapped.pkl.gz',
-               'clickstream_0916_cleaned_and_mapped.pkl.gz',
-               'clickstream_1016_cleaned_and_mapped.pkl.gz']
+'clickstream_0616_cleaned_and_mapped.pkl.gz',
+'clickstream_0716_cleaned_and_mapped.pkl.gz',
+'clickstream_0816_cleaned_and_mapped.pkl.gz',
+'clickstream_0916_cleaned_and_mapped.pkl.gz',
+'clickstream_1016_cleaned_and_mapped.pkl.gz']
 
 # output file
 output_file = 'clickstream_0516-1016_aggregated.pkl.gz'
 
 # load data
-print('Starting loading data...')
-
-df = pd.read_pickle('../data/processed_data/'+input_files[0], compression='gzip')
+df = pd.read_pickle('../data/processed_data/'+input_files[0])
 for input_file in input_files[1:]:
-    df = df.append(pd.read_pickle('../data/processed_data/'+input_file, compression='gzip'))
+    df = df.append(pd.read_pickle('../data/processed_data/'+input_file))
 
 print('Loading data complete.')
 
 
 
-# aggregate columns
+### AGGREGATE COLUMNS
 print('Starting aggregating columns...')
 
 # process product items and prices before aggregation
@@ -111,7 +112,7 @@ print('Aggregating columns complete.')
 
 
 
-# write data
+### WRITE DATA
 print('Starting writing data...')
 
 df_aggregated.to_pickle('../data/processed_data/'+output_file, compression='gzip')
@@ -124,5 +125,5 @@ print('Aggregation complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-# save run time
-save_descriptives('../results/descriptives/aggregation_run_time.txt', run_time)
+# save script run time
+save_script_run_time('../results/descriptives/aggregation_run_time.txt', run_time)
