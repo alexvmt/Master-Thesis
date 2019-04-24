@@ -19,10 +19,6 @@ import pickle
 
 from helper_functions import *
 
-# print parameters passed to script
-print('Training set size:', params[1])
-print('Categorical aggregation mode:', params[2])
-
 
 
 ### LOAD DATA
@@ -44,22 +40,11 @@ print('Loading data complete.')
 ### PREPROCESSING
 print('Starting preprocessing...')
 
-# create training set (80%)
+# select data for feature selection
 with open('../data/processed_data/unique_visitor_ids.pkl', 'rb') as f:
    unique_visitor_ids = pickle.load(f)
-train = df[df['visitor_id'].isin(unique_visitor_ids[:(int(params[1]))])]
-print('All features: ', train.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours', 'purchase_within_next_7_days'], axis=1).shape[1])
-
-# drop categorical features that do not match the aggregation mode set via params[2]
-if params[2] == 'first':
-    categorical_features_to_drop = [column for column in train.columns if ('_last' in column) & ('_in_last_' not in column)]
-    train.drop(categorical_features_to_drop, axis=1, inplace=True)
-elif params[2] == 'last':
-    categorical_features_to_drop = [column for column in train.columns if '_first' in column]
-    train.drop(categorical_features_to_drop, axis=1, inplace=True)
-else:
-    print('Aggregation mode for categorical features not found. Please select one from the available options: first or last.')
-print('Features without categorical features aggregated by', params[2], ' occurrence: ', train.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours', 'purchase_within_next_7_days'], axis=1).shape[1])
+df = df[df['visitor_id'].isin(unique_visitor_ids[2000001:])]
+print('All features: ', df.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours'], axis=1).shape[1])
 
 # standardize numerical features
 from sklearn.preprocessing import StandardScaler
@@ -77,9 +62,10 @@ numerical_features = ['visit_page_num_max',
 'product_item_price_sum',
 'standard_search_results_clicked_sum',
 'standard_search_started_sum',
-'suggested_search_results_clicked_sum']
-scaler.fit(train[numerical_features])
-train[numerical_features] = scaler.transform(train[numerical_features])
+'suggested_search_results_clicked_sum',
+'visit_duration_seconds']
+scaler.fit(df[numerical_features])
+df[numerical_features] = scaler.transform(df[numerical_features])
 
 print('Preprocessing complete.')
 
@@ -88,37 +74,27 @@ print('Preprocessing complete.')
 ### FEATURE SELECTION
 print('Starting feature selection...')
 
-# select k best features based on 100000 unique visitors training set since it is the only data that is not part of the test sets of the larger samples
-# e.g. 200000 unique visitor training set contains the test set used to evaluate the 100000 unique visitor training set
-# training and test sets have to overlap in order to allow for better comparison of samples of different size to measure the effect of sample size
+# select k best features based on independent sample of 453174 unique visitors that are not contained in any of the training and test sets
 
-# split training set in features and targets
-y_train_24 = train['purchase_within_next_24_hours']
-y_train_7 = train['purchase_within_next_7_days']
-X_train = train.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours', 'purchase_within_next_7_days'], axis=1)
+# check whether selected sample has a conversion rate similar to other samples
+print('conversion rate: ', round(sum(df['purchase_within_next_24_hours'])/len(df['purchase_within_next_24_hours'])*100, 4), '%')
 
-# calculate feature importance using ANOVA, F test and p values for target == purchase_within_next_24_hours
+# split df in target and features
+y = df['purchase_within_next_24_hours']
+X = df.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours'], axis=1)
+
+# select best features using ANOVA F-test and p-values
 from sklearn.feature_selection import SelectKBest, f_classif
-selector_24 = SelectKBest(f_classif, k='all')
-X_train_k_best_24 = selector_24.fit_transform(X_train, y_train_24)
-features_24 = X_train.columns.values[selector_24.get_support()]
-scores_24 = selector_24.scores_[selector_24.get_support()]
-p_values_24 = selector_24.pvalues_[selector_24.get_support()]
-k_best_24 = pd.DataFrame({'features': features_24, 'scores_24': scores_24, 'p_values_24': p_values_24})
+selector = SelectKBest(f_classif, k='all')
+X_best = selector.fit_transform(X, y)
+features = X.columns.values[selector.get_support()]
+f_values = selector.scores_[selector.get_support()]
+p_values = selector.pvalues_[selector.get_support()]
+best_features = pd.DataFrame({'Features': features, 'F-values': f_values, 'p-values': p_values})
 
-# calculate feature importance using ANOVA, F test and p values for target == purchase_within_next_7_days
-selector_7 = SelectKBest(f_classif, k='all')
-X_train_k_best_7 = selector_7.fit_transform(X_train, y_train_7)
-features_7 = X_train.columns.values[selector_7.get_support()]
-scores_7 = selector_7.scores_[selector_7.get_support()]
-p_values_7 = selector_7.pvalues_[selector_7.get_support()]
-k_best_7 = pd.DataFrame({'features': features_7, 'scores_7': scores_7, 'p_values_7': p_values_7})
-
-# merge scores and p values of calcuations for purchase_within_next_24_hours and purchase_within_next_7_days
-k_best = pd.merge(k_best_24, k_best_7, on='features')
-
-# select only features that have p values of <= 0.01 for both purchase_within_next_24_hours and purchase_within_next_7_days
-k_best_features = list(k_best[(k_best['p_values_24'] <= 0.01) & (k_best['p_values_7'] <= 0.01)]['features'])
+# save all features and select only features are statistically significant at the one percent level
+best_features.sort_values('F-values', ascending=False).set_index('Features').to_pickle('../results/descriptives/best_features.pkl.gz', compression='gzip')
+k_best_features = list(best_features[best_features['p-values'] <= 0.01]['Features'])
 print('k best features: ', len(k_best_features))
 
 print('Feature selection complete.')
@@ -140,4 +116,4 @@ run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
 # save script run time
-save_script_run_time('../results/descriptives/feature_selection_run_time_'+params[1]+'.txt', run_time)
+save_script_run_time('../results/descriptives/feature_selection_run_time.txt', run_time)

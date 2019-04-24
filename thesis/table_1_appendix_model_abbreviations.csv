@@ -1,0 +1,25 @@
+Abbreviations;Models
+BAG;Bagging
+BM;Bayesian method (incl. Bayesian network)
+BOOST;Boosting
+CM;Custom model
+DA;Discriminant analysis
+DBN;Deep belief network
+DT;Decision tree
+ENN;Extended nearest neighbor
+ENS;Ensemble
+GLM;Generalized linear model
+KNN;k nearest neighbors
+LMNN;Large margin nearest neighbor
+LR;Logistic regression
+MISC-M;Miscellaneous
+MM;Markov model (incl. Markov chain)
+NB;Naive Bayes
+NN;Neural network
+REG;Regression (incl. linear)
+RF;Random forest
+RL;Rule-based learning
+RNN;Recurrent neural network
+SDA;Stack denoised autoencoder
+STC;Stacking
+SVM;Support vector machine

@@ -27,7 +27,7 @@ print('Starting loading data...')
 input_file = params[1]
 
 # output file
-output_file = params[2]
+output_file = params[1][:17]+'cleaned_and_mapped.pkl.gz'
 
 # load column headers
 column_headers = pd.read_csv('../data/mapping_files/column_headers.tsv', sep='\t')
@@ -79,23 +79,28 @@ columns = ['exclude_hit',
 # load data
 df = pd.read_csv('../data/raw_data/'+input_file, compression='gzip', sep='\t', encoding='iso-8859-1', quoting=3, low_memory=False, names=column_headers, usecols=columns)
 
+# set up dataframe for descriptives
+columns = ['rows_pre',
+'rows_post',
+'columns_pre',
+'columns_post',
+'unique_visitors_pre',
+'unique_visitors_post',
+'run_time']
+index = [input_file[:16]]
+cleaning_and_mapping_descriptives = pd.DataFrame(index=index, columns=columns)
+
+# save pre descriptives
+cleaning_and_mapping_descriptives['rows_pre'] = df.shape[0]
+cleaning_and_mapping_descriptives['columns_pre'] = df.shape[1]
+cleaning_and_mapping_descriptives['unique_visitors_pre'] = df['visitor_id'].nunique()
+
 print('Loading data complete.')
 
 
 
 ### PROCESS INPUTE FILE
 print('Processing '+input_file+'...')
-
-# set up dataframe for number of raw and cleaned hits
-columns = ['raw_hits',
-'cleaned_hits',
-'absolute_difference',
-'relative_difference']
-index = [input_file[:16]]
-raw_and_cleaned_hits = pd.DataFrame(index=index, columns=columns)
-
-# save number of raw hits
-raw_and_cleaned_hits['raw_hits'] = df.shape[0]
 
 # drop rows
 df = drop_rows(df)
@@ -136,21 +141,17 @@ df = fill_missing_and_faulty_values(df)
 # cast data types
 df = cast_data_types(df)
 
-# save number of cleaned hits and calculate differences
-raw_and_cleaned_hits['cleaned_hits'] = df.shape[0]
-raw_and_cleaned_hits['absolute_difference'] = raw_and_cleaned_hits['raw_hits'] - raw_and_cleaned_hits['cleaned_hits']
-raw_and_cleaned_hits['relative_difference'] = raw_and_cleaned_hits['absolute_difference'] / raw_and_cleaned_hits['raw_hits']
-raw_and_cleaned_hits['relative_difference'] = raw_and_cleaned_hits['relative_difference'].apply(lambda x: round(x, 4))
-
-# save raw and cleaned hits dataframe
-raw_and_cleaned_hits.to_pickle('../results/descriptives/raw_and_cleaned_hits_'+input_file[:16]+'.pkl.gz', compression='gzip')
-
 print('Processing '+input_file+' complete.')
 
 
 
 ### WRITE OUTPUT FILE
 print('Starting writing data...')
+
+# save post descriptives
+cleaning_and_mapping_descriptives['rows_post'] = df.shape[0]
+cleaning_and_mapping_descriptives['columns_post'] = df.shape[1]
+cleaning_and_mapping_descriptives['unique_visitors_post'] = df['visitor_id'].nunique()
 
 df.to_pickle('../data/processed_data/'+output_file, compression='gzip')
 
@@ -162,5 +163,6 @@ print('Cleaning and mapping complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-# save script run time
-save_script_run_time('../results/descriptives/cleaning_and_mapping_run_time_'+input_file[:16]+'.txt', run_time)
+# save run time and descriptives dataframe
+cleaning_and_mapping_descriptives['run_time'] = run_time.seconds
+cleaning_and_mapping_descriptives.to_pickle('../results/descriptives/cleaning_and_mapping_descriptives_'+input_file[:16]+'.pkl.gz', compression='gzip')

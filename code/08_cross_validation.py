@@ -20,42 +20,27 @@ from random import shuffle
 
 from helper_functions import *
 
-# print parameters passed to script
-print('Training set:', params[1])
-print('Test set:', 'test'+params[1][5:])
-print('Target:', params[2])
-print('Model:', params[3])
+# print selected training set, test set and model
+print('Training set size:', params[1], 'unique visitors')
+print('Test set size:', int(int(params[1])/0.8*0.2), 'unique_visitors')
+print('Model:', params[2])
 
 
 
 ### LOAD DATA
 print('Starting loading training and test sets...')
 
-# verify that correct training set is selected
-training_sets = [file for file in os.listdir('../data/training_and_test_sets/') if 'train' in file]
-if params[1] in training_sets:
-    pass
-else:
-    print('Training set not found. Please select one of the following training sets: ', training_sets)
-
 # input files
-input_file_train = params[1]
-input_file_test = 'test'+params[1][5:]
+input_file_train = 'train_'+params[1]+'.pkl.gz'
+input_file_test = 'test_'+params[1]+'.pkl.gz'
 
 # output files
-output_file_cross_validation_metrics = 'cross_validation_metrics_'+params[3]+'_'+params[1][6:-7]+'_'+params[2]+'.pkl.gz'
-output_file_cross_validation_runs = 'cross_validation_runs_'+params[3]+'_'+params[1][6:-7]+'_'+params[2]+'.pkl.gz'
+output_file_cross_validation_metrics = 'cross_validation_metrics_'+params[1]+'_'+params[2]+'.pkl.gz'
+output_file_cross_validation_runs = 'cross_validation_runs_'+params[1]+'_'+params[2]+'.pkl.gz'
 
 # load training and test sets
 train = pd.read_pickle('../data/training_and_test_sets/'+input_file_train)
 test = pd.read_pickle('../data/training_and_test_sets/'+input_file_test)
-
-# verify that correct target is selected
-targets = ['purchase_within_next_24_hours', 'purchase_within_next_7_days']
-if params[2] in targets:
-    pass
-else:
-    print('Target not found. Please select one of the following targets: ', targets)
 
 print('Loading training and test sets complete.')
 
@@ -72,47 +57,63 @@ unique_visitor_ids = list(train_test['visitor_id'].unique())
 shuffle(unique_visitor_ids)
 
 # create folds and respective training and test sets
-folds = [unique_visitor_ids[i:i + int(len(unique_visitor_ids)/5)] for i in range(0, len(unique_visitor_ids), int(len(unique_visitor_ids)/5))]
+folds = [unique_visitor_ids[i:i + int(len(unique_visitor_ids)/10)] for i in range(0, len(unique_visitor_ids), int(len(unique_visitor_ids)/10))]
 
-train1 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3])]
-test1 = train_test[train_test['visitor_id'].isin(folds[4])]
+train1 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test1 = train_test[train_test['visitor_id'].isin(folds[9])]
 
-train2 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[4])]
-test2 = train_test[train_test['visitor_id'].isin(folds[3])]
+train2 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[9])]
+test2 = train_test[train_test['visitor_id'].isin(folds[8])]
 
-train3 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[3])]
-test3 = train_test[train_test['visitor_id'].isin(folds[2])]
+train3 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[9]) | train_test['visitor_id'].isin(folds[8])]
+test3 = train_test[train_test['visitor_id'].isin(folds[7])]
 
-train4 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3])]
-test4 = train_test[train_test['visitor_id'].isin(folds[1])]
+train4 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[9]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test4 = train_test[train_test['visitor_id'].isin(folds[6])]
 
-train5 = train_test[(train_test['visitor_id'].isin(folds[4])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3])]
-test5 = train_test[train_test['visitor_id'].isin(folds[0])]
+train5 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[9]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test5 = train_test[train_test['visitor_id'].isin(folds[5])]
+
+train6 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[9]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test6 = train_test[train_test['visitor_id'].isin(folds[4])]
+
+train7 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[9]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test7 = train_test[train_test['visitor_id'].isin(folds[3])]
+
+train8 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[9]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test8 = train_test[train_test['visitor_id'].isin(folds[2])]
+
+train9 = train_test[(train_test['visitor_id'].isin(folds[0])) | train_test['visitor_id'].isin(folds[9]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test9 = train_test[train_test['visitor_id'].isin(folds[1])]
+
+train10 = train_test[(train_test['visitor_id'].isin(folds[9])) | train_test['visitor_id'].isin(folds[1]) | train_test['visitor_id'].isin(folds[2]) | train_test['visitor_id'].isin(folds[3]) | train_test['visitor_id'].isin(folds[4]) | train_test['visitor_id'].isin(folds[5]) | train_test['visitor_id'].isin(folds[6]) | train_test['visitor_id'].isin(folds[7]) | train_test['visitor_id'].isin(folds[8])]
+test10 = train_test[train_test['visitor_id'].isin(folds[0])]
 
 # prepare cross validation loop
-training_sets = [train1, train2, train3, train4, train5]
-test_sets = [test1, test2, test3, test4, test5]
-runs = ['run1', 'run2', 'run3', 'run4', 'run5']
+training_sets = [train1, train2, train3, train4, train5, train6, train7, train8, train9, train10]
+test_sets = [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10]
+runs = ['run1', 'run2', 'run3', 'run4', 'run5', 'run6', 'run7', 'run8', 'run9', 'run10']
 
 # import performance metrics
 from sklearn.metrics import accuracy_score,roc_curve,auc,confusion_matrix,classification_report
 
 # set up dataframe for model performance
-columns = ['training_set_size',
-'test_set_size',
-'target',
-'features',
-'training_time',
-'testing_time',
-'accuracy',
-'auc',
-'true_negatives',
-'false_negatives',
-'true_positives',
-'false_positives',
-'precision',
-'recall',
-'f_score']
+columns = ['Unique visitors train',
+'Unique visitors test',
+'Sessions train',
+'Sessions test',
+'Features',
+'Training time',
+'Testing time',
+'Accuracy',
+'AUC',
+'True negatives',
+'False negatives',
+'True positives',
+'False positives',
+'Precision',
+'Recall',
+'F-score']
 index = [runs]
 model_performance = pd.DataFrame(index=index, columns=columns)
 
@@ -121,16 +122,18 @@ print('Preparing cross validation complete...')
 
 
 ### CROSS VALIDATING MODEL
-print('Starting cross validating '+params[3]+'...')
+print('Starting cross validating '+params[2]+'...')
 
 for run, train, test in zip(runs, training_sets, test_sets):
     
     print('Starting '+run+'...')
 
-    y_train = train[params[2]]
-    y_test = test[params[2]]
-    X_train = train.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours', 'purchase_within_next_7_days'], axis=1)
-    X_test = test.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours', 'purchase_within_next_7_days'], axis=1)
+    y_train = train['purchase_within_next_24_hours']
+    y_test = test['purchase_within_next_24_hours']
+    unique_visitors_train = train['visitor_id'].nunique()
+    unique_visitors_test = test['visitor_id'].nunique()
+    X_train = train.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours'], axis=1)
+    X_test = test.drop(['visitor_id', 'visit_start_time_gmt', 'purchase_within_next_24_hours'], axis=1)
 
 	
 
@@ -142,39 +145,35 @@ for run, train, test in zip(runs, training_sets, test_sets):
     set_random_seed(42)
 
     # import model
-    if params[3] == 'LR':
+    if params[2] == 'LR':
         from sklearn.linear_model import LogisticRegression
         model = LogisticRegression(random_state=random_state)
 
-    elif params[3] == 'DT':
+    elif params[2] == 'DT':
         from sklearn.tree import DecisionTreeClassifier
         model = DecisionTreeClassifier(random_state=random_state)
 
-    elif params[3] == 'NB':
+    elif params[2] == 'NB':
         from sklearn.naive_bayes import GaussianNB
         model = GaussianNB()
 
-    elif params[3] == 'KNN':
+    elif params[2] == 'KNN':
         from sklearn.neighbors import KNeighborsClassifier
         model = KNeighborsClassifier()
 
-    elif params[3] == 'RF':
+    elif params[2] == 'RF':
         from sklearn.ensemble import RandomForestClassifier
         model = RandomForestClassifier(random_state=random_state)
 
-    elif params[3] == 'SVM':
-        from sklearn.svm import SVC
-        model = SVC(random_state=random_state)
+    elif params[2] == 'SVM':
+        from sklearn.svm import LinearSVC
+        model = LinearSVC(random_state=random_state)
 
-    elif params[3] == 'BOOST':
+    elif params[2] == 'BOOST':
         from sklearn.ensemble import GradientBoostingClassifier
         model = GradientBoostingClassifier(random_state=random_state)
 
-    elif params[3] == 'BAG':
-        from sklearn.ensemble import BaggingClassifier
-        model = BaggingClassifier(random_state=random_state)
-
-    elif params[3] == 'NN1':
+    elif params[2] == 'NN1':
         from keras.models import Sequential
         from keras.layers import Dense, Dropout
         from keras.callbacks import EarlyStopping
@@ -191,7 +190,7 @@ for run, train, test in zip(runs, training_sets, test_sets):
         model.add(Dense(1, activation='sigmoid'))
         model.compile(loss='binary_crossentropy', optimizer='adam')
 
-    elif params[3] == 'NN3':
+    elif params[2] == 'NN3':
         from keras.models import Sequential
         from keras.layers import Dense, Dropout
         from keras.callbacks import EarlyStopping
@@ -212,7 +211,7 @@ for run, train, test in zip(runs, training_sets, test_sets):
         model.add(Dense(1, activation='sigmoid'))
         model.compile(loss='binary_crossentropy', optimizer='adam')
 
-    elif params[3] == 'NN5':
+    elif params[2] == 'NN5':
         from keras.models import Sequential
         from keras.layers import Dense, Dropout
         from keras.callbacks import EarlyStopping
@@ -237,7 +236,7 @@ for run, train, test in zip(runs, training_sets, test_sets):
         model.add(Dense(1, activation='sigmoid'))
         model.compile(loss='binary_crossentropy', optimizer='adam')
 
-    elif params[3] in ['RNN', 'LSTM']:
+    elif params[2] in ['RNN', 'LSTM']:
         from collections import defaultdict
         import copy
         from keras.models import Sequential
@@ -256,16 +255,8 @@ for run, train, test in zip(runs, training_sets, test_sets):
         feature_columns = [x for x in feature_columns if '_in_last_' not in x]
 
         # select target
-        if params[2] == 'purchase_within_next_24_hours':
-            target_column = 'purchase_within_next_24_hours'
-            feature_columns.remove(target_column)
-            feature_columns.remove('purchase_within_next_7_days')
-        elif params[2] == 'purchase_within_next_7_days':
-            target_column = 'purchase_within_next_7_days'
-            feature_columns.remove(target_column)
-            feature_columns.remove('purchase_within_next_24_hours')
-        else:
-            pass
+        target_column = 'purchase_within_next_24_hours'
+        feature_columns.remove(target_column)
 
         # build 3D numpy arrays for training from 2D training set
         X_train_generator = defaultdict(lambda: defaultdict(list))
@@ -305,7 +296,7 @@ for run, train, test in zip(runs, training_sets, test_sets):
 
         print('Transforming 2D training and test dataframes to 3D numpy arrays complete.')
 
-        if params[3] == 'RNN':
+        if params[2] == 'RNN':
             # fully conncected recurrent neural network with 1 recurrent layer consistent of 256 units
             # tanh activation in recurrent layer and Sigmoid activation in output layer
             # Xavier uniform initializer for weight initialization
@@ -314,7 +305,7 @@ for run, train, test in zip(runs, training_sets, test_sets):
             model.add(SimpleRNN(256, input_shape=(None, len(feature_columns)), return_sequences=False, dropout=0.2, recurrent_dropout=0.2))
             model.add(Dense(1, activation='sigmoid'))
             model.compile(loss='binary_crossentropy', optimizer='adam')
-        elif params[3] == 'LSTM':
+        elif params[2] == 'LSTM':
             # recurrent neural network with 1 LSTM layer cosistent of 256 units
             # tanh activation in LSTM layer and Sigmoid activation in output layer
             # Xavier uniform initializer for weight initialization
@@ -327,21 +318,21 @@ for run, train, test in zip(runs, training_sets, test_sets):
             pass
 
     else:
-        print('Model not found. Please select one of the following models: LR, DT, NB, KNN, RF, SVM, BOOST, BAG, NN1, NN3, NN5, RNN or LSTM.')
+        print('Model not found. Please select one of the following models: LR, DT, NB, KNN, RF, SVM, BOOST, NN1, NN3, NN5, RNN or LSTM.')
 
 
 
     ### TRAIN
-    print('Training '+params[3]+'...')
+    print('Training '+params[2]+'...')
     training_start_time = datetime.now()
 
-    if params[3] in ['NN1', 'NN3', 'NN5']:
+    if params[2] in ['NN1', 'NN3', 'NN5']:
         epochs = 10
         batch_size = 256
         callbacks = [EarlyStopping(monitor='val_loss', patience=2)]
         model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, callbacks=callbacks, verbose=2)
 
-    elif params[3] in ['RNN', 'LSTM']:
+    elif params[2] in ['RNN', 'LSTM']:
         epochs = 10
         steps_per_epoch = floor(X_train.shape[0]/epochs)
         callbacks = [EarlyStopping(monitor='val_loss', patience=2)]
@@ -351,18 +342,18 @@ for run, train, test in zip(runs, training_sets, test_sets):
         model.fit(X_train, y_train)
 
     training_time = (datetime.now() - training_start_time)
-    print('Training '+params[3]+' complete, training time: '+str(training_time)+'.')
+    print('Training '+params[2]+' complete, training time: '+str(training_time)+'.')
 
 
 
     ### TEST
-    print('Testing '+params[3]+'...')
+    print('Testing '+params[2]+'...')
     testing_start_time = datetime.now()
 
-    if params[3] in ['NN1', 'NN3', 'NN5']:
+    if params[2] in ['NN1', 'NN3', 'NN5']:
         y_pred = model.predict_classes(X_test)
 
-    elif params[3] in ['RNN', 'LSTM']:
+    elif params[2] in ['RNN', 'LSTM']:
         steps = X_test.shape[0]
         y_pred = np.around(model.predict_generator(generator_test, steps=steps)).astype(int)
 
@@ -370,118 +361,104 @@ for run, train, test in zip(runs, training_sets, test_sets):
         y_pred = model.predict(X_test)
 
     testing_time = datetime.now() - testing_start_time
-    print('Testing '+params[3]+' complete, test time: '+str(testing_time)+'.')
+    print('Testing '+params[2]+' complete, test time: '+str(testing_time)+'.')
 
 
 
     ### EVALUATE
-    print('Evaluating '+params[3]+'...')
+    print('Evaluating '+params[2]+'...')
 
-    # calculate performance metrics
-    accuracy = accuracy_score(y_test, y_pred)
+    # calculate performance metrics and save them in dataframe
+    model_performance.at[run, 'Unique visitors train'] = unique_visitors_train
+    model_performance.at[run, 'Unique visitors test'] = unique_visitors_test
+
+    model_performance.at[run, 'Sessions train'] = X_train.shape[0]
+    model_performance.at[run, 'Sessions test'] = X_test.shape[0]
+
+    if params[2] in ['RNN', 'LSTM']:
+        model_performance.at[run, 'Features'] = X_train.shape[1]-temporal_features_dropped
+    else:
+        model_performance.at[run, 'Features'] = X_train.shape[1]
+	
+    model_performance.at[run, 'Training time'] = training_time.seconds
+    model_performance.at[run, 'Testing time'] = testing_time.seconds
+    
+    model_performance.at[run, 'Accuracy'] = accuracy_score(y_test, y_pred)
+
     fpr, tpr, thresholds = roc_curve(y_test, y_pred)
-    auc_score = auc(fpr, tpr)
+    model_performance.at[run, 'AUC'] = auc(fpr, tpr)
+
     true_negatives = confusion_matrix(y_test, y_pred)[0,0]
     false_negatives = confusion_matrix(y_test, y_pred)[1,0]
     true_positives = confusion_matrix(y_test, y_pred)[1,1]
     false_positives = confusion_matrix(y_test, y_pred)[0,1]
+    model_performance.at[run, 'True negatives'] = true_negatives
+    model_performance.at[run, 'False negatives'] = false_negatives
+    model_performance.at[run, 'True positives'] = true_positives
+    model_performance.at[run, 'False positives'] = false_positives
+
     precision = true_positives/(true_positives+false_positives)
     recall = true_positives/(true_positives+false_negatives)
     f_score = 2*((precision*recall)/(precision+recall))
+    model_performance.at[run, 'Precision'] = precision
+    model_performance.at[run, 'Recall'] = recall
+    model_performance.at[run, 'F-score'] = f_score
 
-    # add performance metrics to model performance dataframe
-    model_performance.at[run, 'training_set_size'] = X_train.shape[0]
-    model_performance.at[run, 'test_set_size'] = X_test.shape[0]
-    model_performance.at[run, 'target'] = params[2]
-    if params[3] in ['RNN', 'LSTM']:
-        model_performance.at[run, 'features'] = X_train.shape[1]-temporal_features_dropped
-    else:
-        model_performance.at[run, 'features'] = X_train.shape[1]
-    model_performance.at[run, 'training_time'] = training_time.seconds
-    model_performance.at[run, 'testing_time'] = testing_time.seconds
-    model_performance.at[run, 'accuracy'] = accuracy
-    model_performance.at[run, 'auc'] = auc_score
-    model_performance.at[run, 'true_negatives'] = true_negatives
-    model_performance.at[run, 'false_negatives'] = false_negatives
-    model_performance.at[run, 'true_positives'] = true_positives
-    model_performance.at[run, 'false_positives'] = false_positives
-    model_performance.at[run, 'precision'] = precision
-    model_performance.at[run, 'recall'] = recall
-    model_performance.at[run, 'f_score'] = f_score
-
-    print('Evaluating '+params[3]+' complete.')
+    print('Evaluating '+params[2]+' complete.')
 
     print(run+' complete.')
 
 	
 
 # set up dataframe for cross validation metrics
-columns = ['training_set_size_mean',
-'training_set_size_std',
-'test_set_size_mean',
-'test_set_size_std',
-'target',
-'features',
-'training_time_mean',
-'training_time_std',
-'testing_time_mean',
-'testing_time_std',
-'accuracy_mean',
-'accuracy_std',
-'auc_mean',
-'auc_std',
-'true_negatives_mean',
-'true_negatives_std',
-'false_negatives_mean',
-'false_negatives_std',
-'true_positives_mean',
-'true_positives_std',
-'false_positives_mean',
-'false_positives_std',
-'precision_mean',
-'precision_std',
-'recall_mean',
-'recall_std',
-'f_score_mean',
-'f_score_std']
-index = [params[3]]
+columns = ['Unique visitors train',
+'Unique visitors test',
+'Sessions train',
+'Sessions test',
+'Features',
+'Training time',
+'Testing time',
+'Accuracy',
+'AUC',
+'True negatives',
+'False negatives',
+'True positives',
+'False positives',
+'Precision',
+'Recall',
+'F-score']
+index = [params[2]]
 cross_validation_metrics = pd.DataFrame(index=index, columns=columns)
 
 # calculate cross validation metrics
-cross_validation_metrics['training_set_size_mean'] = model_performance['training_set_size'].mean()
-cross_validation_metrics['training_set_size_std'] = model_performance['training_set_size'].std()
-cross_validation_metrics['test_set_size_mean'] = model_performance['test_set_size'].mean()
-cross_validation_metrics['test_set_size_std'] = model_performance['test_set_size'].std()
-cross_validation_metrics['training_time_mean'] = model_performance['training_time'].mean()
-cross_validation_metrics['training_time_std'] = model_performance['training_time'].std()
-cross_validation_metrics['testing_time_mean'] = model_performance['testing_time'].mean()
-cross_validation_metrics['testing_time_std'] = model_performance['testing_time'].std()
-cross_validation_metrics['target'] = model_performance['target'][0]
-cross_validation_metrics['features'] = model_performance['features'][0]
-cross_validation_metrics['accuracy_mean'] = model_performance['accuracy'].mean()
-cross_validation_metrics['accuracy_std'] = model_performance['accuracy'].std()
-cross_validation_metrics['auc_mean'] = model_performance['auc'].mean()
-cross_validation_metrics['auc_std'] = model_performance['auc'].std()
-cross_validation_metrics['true_negatives_mean'] = model_performance['true_negatives'].mean()
-cross_validation_metrics['true_negatives_std'] = model_performance['true_negatives'].std()
-cross_validation_metrics['false_negatives_mean'] = model_performance['false_negatives'].mean()
-cross_validation_metrics['false_negatives_std'] = model_performance['false_negatives'].std()
-cross_validation_metrics['true_positives_mean'] = model_performance['true_positives'].mean()
-cross_validation_metrics['true_positives_std'] = model_performance['true_positives'].std()
-cross_validation_metrics['false_positives_mean'] = model_performance['false_positives'].mean()
-cross_validation_metrics['false_positives_std'] = model_performance['false_positives'].std()
-cross_validation_metrics['precision_mean'] = model_performance['precision'].mean()
-cross_validation_metrics['precision_std'] = model_performance['precision'].std()
-cross_validation_metrics['recall_mean'] = model_performance['recall'].mean()
-cross_validation_metrics['recall_std'] = model_performance['recall'].std()
-cross_validation_metrics['f_score_mean'] = model_performance['f_score'].mean()
-cross_validation_metrics['f_score_std'] = model_performance['f_score'].std()
+cross_validation_metrics['Unique visitors train'] = str(int(round(model_performance['Unique visitors train'].mean(), 0)))+' ('+str(int(round(model_performance['Unique visitors train'].std(), 0)))+')'
+cross_validation_metrics['Unique visitors test'] = str(int(round(model_performance['Unique visitors test'].mean(), 0)))+' ('+str(int(round(model_performance['Unique visitors test'].std(), 0)))+')'
+
+cross_validation_metrics['Sessions train'] = str(int(round(model_performance['Sessions train'].mean(), 0)))+' ('+str(int(round(model_performance['Sessions train'].std(), 0)))+')'
+cross_validation_metrics['Sessions test'] = str(int(round(model_performance['Sessions test'].mean(), 0)))+' ('+str(int(round(model_performance['Sessions test'].std(), 0)))+')'
+
+cross_validation_metrics['Features'] = int(model_performance['Features'].unique())
+
+cross_validation_metrics['Training time'] = str(round(model_performance['Training time'].mean(), 4))+' ('+str(round(model_performance['Training time'].std(), 4))+')'
+cross_validation_metrics['Testing time'] = str(round(model_performance['Testing time'].mean(), 4))+' ('+str(round(model_performance['Testing time'].std(), 4))+')'
+
+cross_validation_metrics['Accuracy'] = str(round(model_performance['Accuracy'].mean(), 4))+' ('+str(round(model_performance['Accuracy'].std(), 4))+')'
+cross_validation_metrics['AUC'] = str(round(model_performance['AUC'].mean(), 4))+' ('+str(round(model_performance['AUC'].std(), 4))+')'
+
+cross_validation_metrics['True negatives'] = str(int(round(model_performance['True negatives'].mean(), 0)))+' ('+str(int(round(model_performance['True negatives'].std(), 0)))+')'
+cross_validation_metrics['False negatives'] = str(int(round(model_performance['False negatives'].mean(), 0)))+' ('+str(int(round(model_performance['False positives'].std(), 0)))+')'
+cross_validation_metrics['True positives'] = str(int(round(model_performance['True positives'].mean(), 0)))+' ('+str(int(round(model_performance['True positives'].std(), 0)))+')'
+cross_validation_metrics['False positives'] = str(int(round(model_performance['False positives'].mean(), 0)))+' ('+str(int(round(model_performance['False positives'].std(), 0)))+')'
+
+cross_validation_metrics['Precision'] = str(round(model_performance['Precision'].mean(), 4))+' ('+str(round(model_performance['Precision'].std(), 4))+')'
+cross_validation_metrics['Recall'] = str(round(model_performance['Recall'].mean(), 4))+' ('+str(round(model_performance['Recall'].std(), 4))+')'
+cross_validation_metrics['F-score'] = str(round(model_performance['F-score'].mean(), 4))+' ('+str(round(model_performance['F-score'].std(), 4))+')'
 
 # save model performance and cross validation metrics dataframes
-model_performance.to_pickle('../results/models/'+output_file_cross_validation_runs, compression='gzip')
-cross_validation_metrics.to_pickle('../results/models/'+output_file_cross_validation_metrics, compression='gzip')
+model_performance.to_pickle('../results/cross_validation/'+output_file_cross_validation_runs, compression='gzip')
+cross_validation_metrics.to_pickle('../results/cross_validation/'+output_file_cross_validation_metrics, compression='gzip')
 
-print('Cross validating '+params[3]+' complete.')
+print('Cross validating '+params[2]+' complete.')
 
 
 
@@ -490,4 +467,4 @@ run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
 # save script run time
-save_script_run_time('../results/descriptives/cross_validation_run_time_'+params[3]+'_'+params[1][6:-7]+'_'+params[2]+'.txt', run_time)
+save_script_run_time('../results/descriptives/cross_validation_run_time_'+params[1]+'_'+params[2]+'.txt', run_time)

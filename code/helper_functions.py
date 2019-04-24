@@ -18,16 +18,16 @@ def drop_rows(df):
 
     print('Starting dropping rows...')
 
-    # keep rows where exclude_hit is == 0
+    # keep rows where exclude hit is == 0
     df = df[df['exclude_hit'] == 0]
 
-    # keep rows where hit_source != 5, 7, 8 or 9
+    # keep rows where hit source != 5, 7, 8 or 9
     df = df[(df['hit_source'] != 5) | (df['hit_source'] != 7) |(df['hit_source'] != 8) |(df['hit_source'] != 9)]
 
-    # keep rows where visitor_id is not missing (6 missing values)
+    # keep rows where visitor id is not missing (6 missing values)
     df = df[pd.notnull(df['visitor_id'])]
 
-    # clean visit_page_num and keep rows where visit_page_num is not missing or faulty (118 missing and 269 faulty values)
+    # clean visit page num and keep rows where visit page num is not missing or faulty (118 missing and 269 faulty values)
     df['visit_page_num'] = df['visit_page_num'].apply(lambda x: np.nan if len(str(x)) > 10 else x)
     df = df[pd.notnull(df['visit_page_num'])]
 
@@ -291,14 +291,14 @@ def custom_and_standard_events_mapping(df):
 
     print('Starting custom and standard events mapping...')
 
-    # fill missing values in post_event_list
+    # fill missing values in post event list
     df['post_event_list'] = df['post_event_list'].fillna('Unknown')
 
     # load file for standard event mapping and select columns
     standard_events = pd.read_csv('../data/mapping_files/event.tsv', sep='\t', header=None)
     standard_events.columns = ['event_id', 'event_name']
 
-    # load file for custom event mapping and modify event_id for matching
+    # load file for custom event mapping and modify event id for matching
     custom_events = pd.read_csv('../data/mapping_files/custom_events.tsv', sep='\t')
     custom_events['event_id'] = custom_events.index + 200
 
@@ -479,15 +479,13 @@ def process_product_categories(df):
     'Medien & Unterhaltung']
 	
     # clean product categories and keep only level 1 product categories
-    for i in ['_first', '_last']:
+    df['product_categories_first'] = df['product_categories_first'].apply(lambda x: 'Unknown' if pd.isnull(x) else x.split('/'))
+    df['product_categories_first'] = df['product_categories_first'].apply(lambda x: x if x == 'Unknown' else [x.strip() for x in x][0])
+    df['product_categories_first_level_1'] = df['product_categories_first'].apply(lambda x: x if x in product_categories_level_1 else 'Unknown')
+    df['product_categories_first_level_1'] = df['product_categories_first_level_1'].apply(lambda x: 'Schoenheit & Gesundheit' if x == 'SchÃ¶nheit & Gesundheit' else x)
+    df['product_categories_first_level_1'] = df['product_categories_first_level_1'].apply(lambda x: 'Lebensmittel & Getraenke' if x == 'Lebensmittel & GetrÃ¤nke' else x)
+    df.drop('product_categories_first', axis=1, inplace=True)
 	
-        df['product_categories'+str(i)] = df['product_categories'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else x.split('/'))
-        df['product_categories'+str(i)] = df['product_categories'+str(i)].apply(lambda x: x if x == 'Unknown' else [x.strip() for x in x][0])
-	
-        df['product_categories_level_1'+str(i)] = df['product_categories'+str(i)].apply(lambda x: x if x in product_categories_level_1 else 'Unknown')
-
-        df.drop('product_categories'+str(i), axis=1, inplace=True)
-		
     print('Processing product categories complete.')
 
     return df
@@ -499,9 +497,7 @@ def process_net_promoter_score(df):
     print('Starting processing net promoter score...')
 	
     # clean net promoter score and fill missing values
-    for i in ['_first', '_last']:
-	
-        df['net_promoter_score'+str(i)] = df['net_promoter_score'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else ('8' if x == '8th' else str(int(x))))
+    df['net_promoter_score_first'] = df['net_promoter_score_first'].apply(lambda x: 'Unknown' if pd.isnull(x) else ('8' if x == '8th' else str(int(x))))
 
     print('Processing net promoter score complete.')
 	
@@ -514,9 +510,7 @@ def process_user_gender(df):
     print('Starting processing user gender...')
 	
     # clean user gender and fill missing values
-    for i in ['_first', '_last']:
-	
-        df['user_gender'+str(i)] = df['user_gender'+str(i)].apply(lambda x: 'Unknown' if pd.isnull(x) else ('female' if x == 'Frau' else 'male'))
+    df['user_gender_first'] = df['user_gender_first'].apply(lambda x: 'Unknown' if pd.isnull(x) else ('female' if x == 'Frau' else 'male'))
  
     print('Processing user gender complete.')
    
@@ -526,12 +520,10 @@ def process_user_gender(df):
 	
 def process_user_age(df):
 
-    print('Starting user age...')
+    print('Starting processing user age...')
 
     # clean user age and fill missing values
-    for i in ['_first', '_last']:
-	
-        df['user_age'+str(i)] = df['user_age'+str(i)].apply(lambda x: 0 if pd.isnull(x) else (int(x) if re.match('^([1][9][0-9][0-9]|[2][0][0][0-2])$', x) else 0))
+    df['user_age_first'] = df['user_age_first'].apply(lambda x: 0 if pd.isnull(x) else (int(x) if re.match('^([1][9][0-9][0-9]|[2][0][0][0-2])$', x) else 0))
 
     print('Processing user age complete.')
 	
@@ -550,11 +542,8 @@ def process_search_engines(df):
     'Yahoo!']
 	
     # clean search engines and keep only selected
-    for i in ['_first', '_last']:
-	
-        df['search_engine_reduced'+str(i)] = df['search_engine'+str(i)].apply(lambda x: x if x in search_engines_to_keep else 'Other')
-
-        df.drop('search_engine'+str(i), axis=1, inplace=True)
+    df['search_engine_first_reduced'] = df['search_engine_first'].apply(lambda x: x if x in search_engines_to_keep else 'Other')
+    df.drop('search_engine_first', axis=1, inplace=True)
 		
     print('Processing search engines complete.')
 	
@@ -574,11 +563,8 @@ def process_device_types(df):
     'portable media player']
 	
     # clean device types and keep only selected
-    for i in ['_first', '_last']:
-	
-        df['device_type_user_agent_reduced'+str(i)] = df['device_type_user_agent'+str(i)].apply(lambda x: x if x in device_types_to_keep else 'Other')
-
-        df.drop('device_type_user_agent'+str(i), axis=1, inplace=True)		
+    df['device_type_user_agent_first_reduced'] = df['device_type_user_agent_first'].apply(lambda x: x if x in device_types_to_keep else 'Other')
+    df.drop('device_type_user_agent_first', axis=1, inplace=True)		
 		
     print('Processing device types complete.')
 	
@@ -611,11 +597,8 @@ def process_device_brand_names(df):
     'Toshiba']
 	
     # clean brand names and keep only selected
-    for i in ['_first', '_last']:
-	
-        df['device_brand_name_user_agent_reduced'+str(i)] = df['device_brand_name_user_agent'+str(i)].apply(lambda x: x if x in device_brand_names_to_keep else 'Other')
-        
-        df.drop('device_brand_name_user_agent'+str(i), axis=1, inplace=True)		
+    df['device_brand_name_user_agent_first_reduced'] = df['device_brand_name_user_agent_first'].apply(lambda x: x if x in device_brand_names_to_keep else 'Other')
+    df.drop('device_brand_name_user_agent_first', axis=1, inplace=True)		
 
     print('Processing device brand names complete.')
 	
@@ -639,11 +622,8 @@ def process_device_operating_systems(df):
     'Chrome OS']
 	
     # clean operating systems and keep only selected
-    for i in ['_first', '_last']:
-	
-        df['device_operating_system_user_agent_reduced'+str(i)] = df['device_operating_system_user_agent'+str(i)].apply(lambda x: x if x in device_operating_systems_to_keep else 'Other')    
-
-        df.drop('device_operating_system_user_agent'+str(i), axis=1, inplace=True)
+    df['device_operating_system_user_agent_first_reduced'] = df['device_operating_system_user_agent_first'].apply(lambda x: x if x in device_operating_systems_to_keep else 'Other')    
+    df.drop('device_operating_system_user_agent_first', axis=1, inplace=True)
 		
     print('Processing device operating systems complete.')
 
@@ -674,11 +654,16 @@ def process_device_browsers(df):
     'Opera Mobile']	
 
     # clean browsers and keep only selected
-    for i in ['_first', '_last']:	
+    df['device_browser_user_agent_first_reduced'] = df['device_browser_user_agent_first'].apply(lambda x: x if x in device_browsers_to_keep else 'Other')
 	
-        df['device_browser_user_agent_reduced'+str(i)] = df['device_browser_user_agent'+str(i)].apply(lambda x: x if x in device_browsers_to_keep else 'Other')    
+    # further summarize browsers to avoid redundancy between browser and device type
+    df['device_browser_user_agent_first_reduced'] = df['device_browser_user_agent_first_reduced'].apply(lambda x: 'Safari' if 'Safari' in x else x)
+    df['device_browser_user_agent_first_reduced'] = df['device_browser_user_agent_first_reduced'].apply(lambda x: 'Chrome' if 'Chrome' in x else x)
+    df['device_browser_user_agent_first_reduced'] = df['device_browser_user_agent_first_reduced'].apply(lambda x: 'Firefox' if 'Firefox' in x else x)
+    df['device_browser_user_agent_first_reduced'] = df['device_browser_user_agent_first_reduced'].apply(lambda x: 'Opera' if 'Opera' in x else x)
+    df['device_browser_user_agent_first_reduced'] = df['device_browser_user_agent_first_reduced'].apply(lambda x: 'Internet Explorer' if x == 'IE Mobile' else x)
 
-        df.drop('device_browser_user_agent'+str(i), axis=1, inplace=True)
+    df.drop('device_browser_user_agent_first', axis=1, inplace=True)
 		
     print('Processing device browsers complete.')
 
@@ -691,5 +676,5 @@ def process_device_browsers(df):
 def save_script_run_time(file, run_time):
 
     f = open(file, 'w')
-    f.write(str(run_time))
+    f.write(str(run_time.seconds))
     f.close()

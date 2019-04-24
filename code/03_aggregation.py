@@ -36,6 +36,22 @@ df = pd.read_pickle('../data/processed_data/'+input_files[0])
 for input_file in input_files[1:]:
     df = df.append(pd.read_pickle('../data/processed_data/'+input_file))
 
+# set up dataframe for descriptives
+columns = ['rows_pre',
+'rows_post',
+'columns_pre',
+'columns_post',
+'unique_visitors_pre',
+'unique_visitors_post',
+'run_time']
+index = [input_file[:16]]
+aggregation_descriptives = pd.DataFrame(index=index, columns=columns)
+
+# save pre descriptives
+aggregation_descriptives['rows_pre'] = df.shape[0]
+aggregation_descriptives['columns_pre'] = df.shape[1]
+aggregation_descriptives['unique_visitors_pre'] = df['visitor_id'].nunique()
+
 print('Loading data complete.')
 
 
@@ -47,11 +63,11 @@ print('Starting aggregating columns...')
 df = process_product_items(df)
 df = process_product_item_prices(df)
 
-# sort dataframe by visit_start_time_gmt, visitor_id and visit_num
+# sort dataframe by visit start time, visitor id and visit num
 df = df.sort_values(['visit_start_time_gmt', 'visitor_id', 'visit_num'], ascending=[True, True, True])
 
-# group columns by visitor_id, visit_start_time, visit_num and aggregate
-df_aggregated = df.groupby(by = ['visitor_id', 'visit_start_time_gmt', 'visit_num'], as_index=False).agg({'hit_time_gmt': ['min', 'max'],
+# group columns by visitor id, visit start time, visit num and aggregate
+df = df.groupby(by = ['visitor_id', 'visit_start_time_gmt', 'visit_num'], as_index=False).agg({'hit_time_gmt': ['min', 'max'],
 'date_time' : ['min', 'max'],
 'visit_page_num' : 'max',
 'purchase_boolean' : 'sum',
@@ -69,44 +85,40 @@ df_aggregated = df.groupby(by = ['visitor_id', 'visit_start_time_gmt', 'visit_nu
 'standard_search_results_clicked' : 'sum',
 'standard_search_started' : 'sum',
 'suggested_search_results_clicked' : 'sum',
-'country' : ['first', 'last'], 
-'cookies' : ['first', 'last'], 
-'persistent_cookie' : ['first', 'last'], 
-'search_page_num' : ['first', 'last'],
-'connection_type' : ['first', 'last'], 
-'search_engine' : ['first', 'last'],
-'marketing_channel' : ['first', 'last'], 
-'referrer_type' : ['first', 'last'], 
-'new_visit' : ['first', 'last'], 
-'hourly_visitor' : ['first', 'last'], 
-'daily_visitor' : ['first', 'last'], 
-'weekly_visitor' : ['first', 'last'], 
-'monthly_visitor' : ['first', 'last'], 
-'quarterly_visitor' : ['first', 'last'], 
-'yearly_visitor' : ['first', 'last'], 
-'product_categories' : ['first', 'last'], 
-'device_type_user_agent' : ['first', 'last'], 
-'device_brand_name_user_agent' : ['first', 'last'], 
-'device_operating_system_user_agent' : ['first', 'last'], 
-'device_browser_user_agent' : ['first', 'last'],
-'repeat_orders' : ['first', 'last'], 
-'net_promoter_score' : ['first', 'last'], 
-'hit_of_logged_in_user' : ['first', 'last'],
-'registered_user' : ['first', 'last'],
-'user_gender' : ['first', 'last'], 
-'user_age' : ['first', 'last'], 
-'visit_during_tv_spot' : ['first', 'last']})
+'country' : 'first', 
+'cookies' : 'first', 
+'persistent_cookie' : 'first', 
+'search_page_num' : 'first',
+'connection_type' : 'first', 
+'search_engine' : 'first',
+'marketing_channel' : 'first', 
+'referrer_type' : 'first', 
+'new_visit' : 'first', 
+'hourly_visitor' : 'first', 
+'daily_visitor' : 'first', 
+'weekly_visitor' : 'first', 
+'monthly_visitor' : 'first', 
+'quarterly_visitor' : 'first', 
+'yearly_visitor' : 'first', 
+'product_categories' : 'first', 
+'device_type_user_agent' : 'first', 
+'device_brand_name_user_agent' : 'first', 
+'device_operating_system_user_agent' : 'first', 
+'device_browser_user_agent' : 'first',
+'repeat_orders' : 'first', 
+'net_promoter_score' : 'first', 
+'hit_of_logged_in_user' : 'first',
+'registered_user' : 'first',
+'user_gender' : 'first', 
+'user_age' : 'first', 
+'visit_during_tv_spot' : 'first'})
 
 # rename columns
-df_aggregated.columns = ['_'.join(x) for x in df_aggregated.columns.ravel()]
-df_aggregated.rename(columns={'visitor_id_' : 'visitor_id'}, inplace=True)
-df_aggregated.rename(columns={'visitor_id_count' : 'hit_count'}, inplace=True)
-df_aggregated.rename(columns={'visit_start_time_gmt_' : 'visit_start_time_gmt'}, inplace=True)
-df_aggregated.rename(columns={'visit_num_' : 'visit_num'}, inplace=True)
-
-# calculate hit_count per visit and join with df_aggregated
-hit_count = df[['visitor_id', 'visit_start_time_gmt', 'visit_num']].groupby(['visitor_id', 'visit_start_time_gmt', 'visit_num']).size().reset_index(name='hit_count')
-df_aggregated = pd.merge(df_aggregated, hit_count, how='left', on=['visitor_id', 'visit_start_time_gmt', 'visit_num'])
+df.columns = ['_'.join(x) for x in df.columns.ravel()]
+df.rename(columns={'visitor_id_' : 'visitor_id'}, inplace=True)
+df.rename(columns={'visitor_id_count' : 'hit_count'}, inplace=True)
+df.rename(columns={'visit_start_time_gmt_' : 'visit_start_time_gmt'}, inplace=True)
+df.rename(columns={'visit_num_' : 'visit_num'}, inplace=True)
 
 print('Aggregating columns complete.')
 
@@ -115,7 +127,12 @@ print('Aggregating columns complete.')
 ### WRITE DATA
 print('Starting writing data...')
 
-df_aggregated.to_pickle('../data/processed_data/'+output_file, compression='gzip')
+# save post descriptives
+aggregation_descriptives['rows_post'] = df.shape[0]
+aggregation_descriptives['columns_post'] = df.shape[1]
+aggregation_descriptives['unique_visitors_post'] = df['visitor_id'].nunique()
+
+df.to_pickle('../data/processed_data/'+output_file, compression='gzip')
 
 print('Writing data complete.')
 
@@ -125,5 +142,6 @@ print('Aggregation complete.')
 run_time = datetime.now() - start_time
 print('Run time: ', run_time)
 
-# save script run time
-save_script_run_time('../results/descriptives/aggregation_run_time.txt', run_time)
+# save run time and descriptives dataframe
+aggregation_descriptives['run_time'] = run_time.seconds
+aggregation_descriptives.to_pickle('../results/descriptives/aggregation_descriptives.pkl.gz', compression='gzip')

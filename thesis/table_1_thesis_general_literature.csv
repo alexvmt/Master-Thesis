@@ -1,0 +1,16 @@
+Studies;Models;Data sets;Instances;Types;Classes;Evaluation metrics
+Weiss and Kapouleas (1989);DA, KNN, BM, NN, RL, DT (9);4;106-3772;R;B/M;Accuracy
+Shavlik et al. (1991);DT, NN (3);5;226-11500;R;B/M;Accuracy, time
+Michie et al. (1994);DA, DT, RL, LR, KNN, BM, NB, NN (23);22;270-58000;R/S;B/M;Time, accuracy, ranking, cost, complexity, qualitative, MISC-E
+King et al. (1995);DT, RL, NB, KNN, DA, LR, BM, NN, MISC-M (17);12;270-58000;R;B/M;Accuracy, cost, time, qualitative
+Bradley (1997);DT, NN, KNN, DA (9);6;117-768;R;B;Accuracy, tests
+Bauer and Kohavi (1999);DT, NB, BAG, BOOST (7);14;1000-58000;R;B/M;Accuracy
+Lim et al. (2000);DT, RL, DA, LR, NN (33);32;151-4435;R/S;B/M;Accuracy, time, complexity
+Huang et al. (2003);NB, DT, SVM (4);18;132-8124;R;B/M;Accuracy
+Perlich et al. (2003);DT, LR, BAG (8);36;700-1000000+;R;B;Accuracy, ranking
+Provost and Domingos (2003);DT, BAG (5);25;unclear, but incl. large-scale datasets;R;B/M;Ranking, accuracy
+Tan and Gilbert (2003);DT, RL, NB, KNN, SVM, NN, STC, BAG, BOOST (17);4;106-1484;R;B/M;Accuracy
+Caruana and Niculesci-Mizil (2006);SVM, NN, LR, NB, KNN, RF, DT, BAG, BOOST (30);11;9366-40222;R;B;Accuracy, MISC-E
+Fernandez-Delgado et al. (2014);DA, NB, BM, NN, SVM, DT, RL, BOOST, BAG, STC, RF, ENS, GLM, KNN, LR, REG, MISC-M (179);121;10-130064;R;B/M;Rankinging, accuracy, tests, MISC-E
+Khan et al. (2018);KNN, SVM, ENN, LMNN (4);11;~200 to ~5000;R;B/M;Accuracy
+Olson et al. (2018);NB, LR, SVM, KNN, DT, RF, BOOST, MISC-M (13);165;mostly < 5000 and incl. large-scale datasets;R;B/M;Ranking, accuracy, tests
