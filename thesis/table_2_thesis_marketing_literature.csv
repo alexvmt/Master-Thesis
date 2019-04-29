@@ -1,11 +1,11 @@
 Studies;Models;Data;Targets;Evaluation metrics
-Moe and Fader (2004);CM, LR, MISC (6);11.000 sessions;Purchase probability of visit;Log-likelihood, Bayesian information criterion, predicted conversion rate
-Suh et al. (2004);DT, NN, LR, ENS (4);73.000 events;Purchase probability of visit;Accuracy, misclassification error, lift
-Boroujerdi et al. (2014);DT, RF, LR, NN, SVM, RL, KNN (16);60.000 sessions;Purchase probability of visit;Precision, recall, F-score
-Sarwar et al. (2015);NB, RF, BM, LR, BOOST (5);11.800.000 sessions;Purchase or no purchase visit and item bought;Custom score from RecSys 2015 Challenge, precision, recall, training time
-Vieira (2015);LR, RF, DBN, SDA (5);1.500.000 sessions in test set;Purchase within next 24 hours of current visit;AUC
-Wu et al. (2015);RNN, NN, BOOST (3);11.800.000 sessions;Purchase or no purchase visit and item bought;Custom score from RecSys 2015 Challenge
-Lang and Rettenmeier (2017);LR, NN, RNN (3);several million sessions;Purchase within next 7 days of current visit;Negative log-likelihood, AUC
-Toth et al. (2017);MM, RNN (2);199.000 sessions;Purchase, abandoned cart or browsing-only visit;Precision, recall, F-score
-Sakar et al. (2018);DT, RF, SVM, NN (4);12.000 sessions;Purchase or no purchase visit;ACC, F-score, true-positive/true-negative rate, statistical significance
-Sheil et al. (2018);RNN, BOOST (4);9.200.000 sessions (dataset 1), 1.400.000 sessions (dataset 2);Purchase or no purchase visit;AUC, ROC
+Moe and Fader (2004);CM, LR, MISC (6);11.000 sessions;Purchase probability of session;Log-likelihood, Bayesian information criterion, predicted conversion rate
+Suh et al. (2004);DT, NN, LR, ENS (4);73.000 events;Purchase probability of session;Accuracy, misclassification error, lift
+Boroujerdi et al. (2014);DT, RF, LR, NN, SVM, RL, KNN (16);60.000 sessions;Purchase probability of session;Precision, recall, F-score
+Sarwar et al. (2015);NB, RF, BM, LR, BOOST (5);11.800.000 sessions;Purchase or no purchase session and item bought;Custom score from RecSys 2015 Challenge, precision, recall, training time
+Vieira (2015);LR, RF, DBN, SDA (5);1.000.000 sessions;Purchase within next 24 hours of current session;AUC
+Wu et al. (2015);RNN, NN, BOOST (3);11.800.000 sessions;Purchase or no purchase session and item bought;Custom score from RecSys 2015 Challenge
+Lang and Rettenmeier (2017);LR, NN, RNN (3);several million sessions;Purchase within next 7 days of current session;Negative log-likelihood, AUC
+Toth et al. (2017);MM, RNN (2);199.000 sessions;Purchase, abandoned cart or browsing-only session;Precision, recall, F-score
+Sakar et al. (2018);DT, RF, SVM, NN (4);12.000 sessions;Purchase or no purchase session;ACC, F-score, true-positive/true-negative rate, statistical significance
+Sheil et al. (2018);RNN, BOOST (4);9.200.000 sessions (dataset 1), 1.400.000 sessions (dataset 2);Purchase or no purchase session;AUC, ROC

@@ -3,7 +3,7 @@ Accuracy;Metrics related to accuracy, such as accuracy, error, AUC, precision, r
 Complexity;Metrics capturing model complexity, e.g. the number of leaves in a decision tree.
 Cost;Metrics related to classification cost, such as cost of misclassification and cost matrix.
 Miscellaneous;Other less frequently used metrics like cross-entropy and Cohen k.
-Qualitative;Metric capturing cophrehensibility of results and ease of use, for example.
+Qualitative;Metric capturing comphrehensibility of results and ease of use, for example.
 Rank;Metrics used to rank models, e.g. Friedman ranking and mean rank of error rate.
 Test;Statistical tests used to compare models, such as t-test, Wilcoxon test and Duncan's multiple range test.
 Time;Metrics like training and prediction time.
