@@ -15,25 +15,25 @@
 
 1. Introduction
 2. Methodology
-3. Related Work  
-3.1 General Comparative Studies
-3.2 Comparative Studies Focused on Customer Journey Prediction
+3. Related Work
+    3.1 General Comparative Studies
+    3.2 Comparative Studies Focused on Customer Journey Prediction
 4. Model Evaluation Framework
-5. Experiments  
-5.1 Experimental Setup
-5.2 Data
-5.3 Descriptive Statistics
-5.4 Models
-6. Evaluation of Models and Experimental Results  
-6.1 Objectivity
-6.2 Predictive Accuracy
-6.3 Robustness
-6.4 Interpretability
-6.5 Versatility
-6.6 Algorithmic Efficiency
+5. Experiments
+    5.1 Experimental Setup
+    5.2 Data
+    5.3 Descriptive Statistics
+    5.4 Models
+6. Evaluation of Models and Experimental Results
+    6.1 Objectivity
+    6.2 Predictive Accuracy
+    6.3 Robustness
+    6.4 Interpretability
+    6.5 Versatility
+    6.6 Algorithmic Efficiency
 7. Discussion and Managerial Implications
 8. Conclusion  
-Appendix
+Appendix    
 References
 
 ## Directories overview
